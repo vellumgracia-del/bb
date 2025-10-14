@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BelajarBareng — Microlearning 5 Menit</title>
+<style>
+:root{
+  --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#94a3b8;
+  font-family: 'Inter', sans-serif;
+}
+body{
+  margin:0; background:linear-gradient(180deg,#071029 0%, #07172b 100%);
+  color:#e6eef6; min-height:100vh; display:flex; justify-content:center; padding:24px;
+}
+.container{
+  width:1100px; max-width:100%;
+  display:grid; grid-template-columns:1fr 340px; gap:20px;
+}
+header{grid-column:1/-1; display:flex; justify-content:space-between; align-items:center;}
+h1{margin:0;font-size:22px;}
+.card{
+  background:rgba(255,255,255,0.03); border-radius:12px; padding:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.3);
+}
+.video-container{
+  position:relative; width:100%; aspect-ratio:16/9; border-radius:8px; overflow:hidden;
+}
+iframe{width:100%; height:100%; border:0;}
+.topic-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+.topic-btn{padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.05); background:transparent; cursor:pointer;}
+.topic-btn.active{background:linear-gradient(90deg,var(--accent),#7dd3fc); color:#021e35;}
+.progress{height:10px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7dd3fc);width:0%;}
+.option{padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.option.correct{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.5);}
+.option.wrong{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.5);}
+.sidebar{display:flex;flex-direction:column;gap:16px;}
+.mentor{height:420px;overflow:auto;padding:8px;background:rgba(255,255,255,0.02);border-radius:10px;}
+.msg{margin-bottom:10px;padding:8px 10px;border-radius:8px;max-width:90%;}
+.msg.ai{background:rgba(6,182,212,0.08);}
+.msg.user{background:rgba(255,255,255,0.05);}
+input[type=text]{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:inherit;}
+.btn{padding:8px 12px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:transparent;color:inherit;cursor:pointer;}
+.small{font-size:13px;color:var(--muted);}
+@media(max-width:900px){.container{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div><h1>BelajarBareng</h1><div class="small">Microlearning 5 menit · Quiz adaptif · AI Mentor</div></div>
+  <div class="small">Poin: <b id="points">0</b></div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="video-container" id="videoBox"></div>
+    <div class="small" style="margin-top:6px;">Durasi video: <span id="videoDuration">-</span></div>
+    <div class="progress" style="margin:10px 0;"><i id="progBar"></i></div>
+    <div class="topic-list" id="topicButtons"></div>
+
+    <div id="quizArea" style="margin-top:20px;">
+      <div id="questionWrap"></div>
+      <button id="nextQ" class="btn" style="display:none;margin-top:10px;">Lanjut</button>
+    </div>
+  </div>
+</main>
+
+<aside class="sidebar">
+  <div class="card mentor">
+    <div id="mentorLog">
+      <div class="msg ai">Halo! Saya Mentor AI kamu. Ketik "ringkasan" atau "ulang soal" untuk bantuan.</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <input id="mentorInput" type="text" placeholder="Tanya Mentor...">
+      <button id="sendMentor" class="btn">Kirim</button>
+    </div>
+  </div>
+</aside>
+</div>
+
+<script>
+// === Data topik YouTube ===
+const TOPICS = [
+  {
+    id:'t1', title:'Dasar Sistem Pencernaan',
+    youtubeId:'2xaF4T3Ppd0', // ganti ID ini sesuai video Anda
+    questions:[
+      {q:'Organ pertama tempat makanan masuk?',opts:['Mulut','Lambung','Usus','Hati'],a:0},
+      {q:'Tempat penyerapan nutrisi utama?',opts:['Usus Halus','Usus Besar','Kerongkongan','Mulut'],a:0}
+    ]
+  },
+  {
+    id:'t2', title:'Sirkulasi Darah Singkat',
+    youtubeId:'JY6bpDS9z2M',
+    questions:[
+      {q:'Organ pemompa darah?',opts:['Paru','Jantung','Ginjal','Lambung'],a:1},
+      {q:'Pembuluh darah keluar dari jantung?',opts:['Arteri','Vena','Kapiler','Bronkus'],a:0}
+    ]
+  },
+  {
+    id:'t3', title:'Kebersihan Diri',
+    youtubeId:'V5D3s3H3O7I',
+    questions:[
+      {q:'Kapan cuci tangan?',opts:['Sebelum makan','Setelah makan','Saat mandi','Jarang'],a:0},
+      {q:'Fungsi sikat gigi?',opts:['Mencegah karies','Bikin gigi panjang','Bikin bibir tebal','Tidak ada'],a:0}
+    ]
+  }
+];
+
+// === State dasar ===
+const state = {
+  topicIndex:0,
+  queue:[],
+  points:parseInt(localStorage.getItem('bb_points')||0)
+};
+
+const videoBox=document.getElementById('videoBox');
+const videoDuration=document.getElementById('videoDuration');
+const topicButtons=document.getElementById('topicButtons');
+const questionWrap=document.getElementById('questionWrap');
+const progBar=document.getElementById('progBar');
+const nextQ=document.getElementById('nextQ');
+const pointsEl=document.getElementById('points');
+
+// === Render topik ===
+function renderTopics(){
+  topicButtons.innerHTML='';
+  TOPICS.forEach((t,i)=>{
+    const btn=document.createElement('button');
+    btn.className='topic-btn'+(i===state.topicIndex?' active':'');
+    btn.textContent=t.title;
+    btn.onclick=()=>loadTopic(i);
+    topicButtons.appendChild(btn);
+  });
+}
+async function loadTopic(i){
+  state.topicIndex=i;
+  renderTopics();
+  const t=TOPICS[i];
+  // tampilkan embed YouTube
+  videoBox.innerHTML=`<iframe src="https://www.youtube.com/embed/${t.youtubeId}" allowfullscreen></iframe>`;
+  getYoutubeDuration(t.youtubeId);
+  // siapkan quiz
+  state.queue=[...t.questions];
+  renderQuiz();
+  updateProgress();
+}
+async function getYoutubeDuration(id){
+  // ambil metadata via oEmbed
+  try{
+    const res=await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+    const data=await res.json();
+    if(data && data.title){
+      const dur=await fetchDurationFromYT(id);
+      videoDuration.textContent=dur? dur+' detik':'tidak tersedia';
+    }
+  }catch(e){videoDuration.textContent='tidak diketahui';}
+}
+async function fetchDurationFromYT(id){
+  // fallback dummy, karena tanpa API key kita tidak bisa akses detail durasi video secara langsung
+  // sebagai alternatif, ambil thumbnail & tampilkan info dummy
+  const thumb=`https://img.youtube.com/vi/${id}/0.jpg`;
+  videoBox.style.background=`url('${thumb}') center/cover no-repeat`;
+  return 180; // asumsikan rata-rata 3 menit
+}
+
+// === Quiz ===
+function renderQuiz(){
+  questionWrap.innerHTML='';
+  if(state.queue.length===0){questionWrap.innerHTML='<div class="small">Selesai! 🎉</div>';nextQ.style.display='none';savePoints();return;}
+  const q=state.queue[0];
+  const div=document.createElement('div');
+  div.innerHTML=`<b>${q.q}</b>`;
+  const opts=document.createElement('div');
+  q.opts.forEach((o,i)=>{
+    const el=document.createElement('div');
+    el.className='option';
+    el.textContent=o;
+    el.onclick=()=>checkAnswer(q,i,el);
+    opts.appendChild(el);
+  });
+  div.appendChild(opts);
+  questionWrap.appendChild(div);
+  nextQ.style.display='none';
+}
+function checkAnswer(q,sel,el){
+  const correct=sel===q.a;
+  const opts=el.parentElement.querySelectorAll('.option');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  if(correct){
+    el.classList.add('correct');
+    state.points+=10;
+    state.queue.shift();
+    savePoints();
+  }else{
+    el.classList.add('wrong');
+    // masukkan lagi ke antrean
+    state.queue.push(q);
+    state.queue.shift();
+  }
+  setTimeout(()=>renderQuiz(),700);
+}
+function updateProgress(){
+  const done=(TOPICS.length-state.queue.length)/TOPICS.length*100;
+  progBar.style.width=done+'%';
+}
+function savePoints(){
+  localStorage.setItem('bb_points',state.points);
+  pointsEl.textContent=state.points;
+}
+
+// === Mentor sederhana ===
+const mentorLog=document.getElementById('mentorLog');
+const mentorInput=document.getElementById('mentorInput');
+const sendMentor=document.getElementById('sendMentor');
+
+sendMentor.onclick=()=>{
+  const v=mentorInput.value.trim();
+  if(!v)return;
+  appendMsg(v,'user');
+  mentorInput.value='';
+  const lower=v.toLowerCase();
+  if(lower.includes('ringkas')) return appendMsg('Ringkasan topik: '+TOPICS[state.topicIndex].questions.map(q=>q.q).join('; '),'ai');
+  if(lower.includes('ulang')){state.queue=[...TOPICS[state.topicIndex].questions];renderQuiz();return appendMsg('Soal diulang untuk latihan.','ai');}
+  appendMsg('Saya AI Mentor offline. Coba ketik "ringkasan" atau "ulang soal".','ai');
+};
+function appendMsg(txt,who){
+  const div=document.createElement('div');
+  div.className='msg '+who;
+  div.textContent=txt;
+  mentorLog.appendChild(div);
+  mentorLog.scrollTop=mentorLog.scrollHeight;
+}
+
+// === Init ===
+loadTopic(0);
+pointsEl.textContent=state.points;
+</script>
+</body>
+</html>
+
