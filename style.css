@@ -127,6 +127,8 @@ header h1 {
   transition: all 0.2s ease;
   font-family: inherit;
   font-size: 14px;
+  text-decoration: none; /* Untuk tag <a> */
+  display: inline-block; /* Untuk tag <a> */
 }
 .btn:hover {
   background: rgba(255, 255, 255, 0.5);
@@ -239,8 +241,8 @@ video {
   padding: 28px;
 }
 .screen.active { display: flex; }
-#mainScreen { position: static; height: auto; display: none; flex-direction: column; }
-#mainScreen.active { display: flex; }
+#mainScreen { display: none; }
+#mainScreen.active { display: block; position: static; height: auto; }
 
 .landing-card {
   max-width: 550px;
@@ -287,6 +289,24 @@ video {
 .header-logo {
     flex-shrink: 0;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.stats-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.forum-btn {
+  background: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+.forum-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
 
 /* -- 8. Responsif (Disempurnakan) -- */
 @media (max-width: 1024px) {
@@ -315,7 +335,11 @@ video {
   header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 12px;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
   .video-info-wrapper {
       flex-direction: column;
