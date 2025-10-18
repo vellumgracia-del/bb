@@ -164,18 +164,22 @@ function showScreen(screenId) {
   if(target) target.classList.add('active');
 }
 
+// PERBAIKAN: Logika inisialisasi diubah untuk memperbaiki masalah poin
 function init(){
-  // Muat semua data dan render elemen yang tersembunyi terlebih dahulu
-  renderSubjects();
-  loadTopic(0);
-  updateStats();
-  renderHistory();
-  renderLeaderboard();
+  // Tampilkan splash screen terlebih dahulu
+  showScreen('splashScreen');
 
-  // Atur transisi dari splash screen ke layar berikutnya
+  // Setelah beberapa saat, siapkan data dan transisi ke layar berikutnya
   setTimeout(() => {
-    splashScreen.classList.remove('active');
+    // Muat semua data dan render elemen TEPAT SEBELUM menampilkannya
+    // Ini memastikan poin dan statistik lain sudah benar saat layar muncul
+    renderSubjects();
+    loadTopic(0);
+    updateStats();
+    renderHistory();
+    renderLeaderboard();
 
+    // Tentukan layar mana yang akan ditampilkan setelah splash
     if (appState.userName) {
       userNameInput.value = appState.userName;
       showScreen('mainScreen');
@@ -184,6 +188,7 @@ function init(){
     }
   }, 2500); // Tampilkan splash screen selama 2.5 detik
 }
+
 
 function renderSubjects() {
   subjectsWrap.innerHTML = '';
@@ -221,7 +226,6 @@ function loadTopic(index){
   topicVideo.querySelector('source').src = t.video;
   topicVideo.load();
   topicVideo.onloadedmetadata = ()=>{
-    // Logika untuk menampilkan durasi video sudah dihapus
     tipsEl.textContent = t.description;
   };
   appState.quizQueue = shuffleArray(t.questions.map(q=> ({...q, attempts:0}) ));
@@ -468,7 +472,7 @@ startAppBtn.addEventListener('click', ()=>{
     appState.userName = name;
     localStorage.setItem('bb_username_v1', name);
     showScreen('mainScreen');
-    updateStats();
+    updateStats(); // Pastikan statistik diperbarui saat pertama kali masuk
   } else {
     alert("Nama harus diisi minimal 3 karakter.");
   }
