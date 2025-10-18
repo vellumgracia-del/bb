@@ -12,7 +12,6 @@
 <body>
   <div class="overlay" id="completionOverlay"></div>
 
-  <!-- PERUBAHAN: Layar pembuka (splash screen) dengan logo ditambahkan -->
   <div id="splashScreen" class="screen active">
     <div class="splash-content">
       <svg class="splash-logo" width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +39,6 @@
   <div id="mainScreen" class="screen">
     <div class="container">
       <header class="card">
-        <!-- PERUBAHAN: Wrapper baru untuk logo dan judul -->
         <div class="header-title-group">
           <svg class="header-logo" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="var(--accent-darker)"/>
@@ -51,9 +49,15 @@
             <div class="small">Microlearning — 5 menit per topik · Video ≤ 3 menit · Quiz adaptif · AI Mentor</div>
           </div>
         </div>
-        <div style="display:flex; gap:16px; align-items:center">
-          <div class="small">Poin: <strong id="points" style="font-size:16px;">0</strong></div>
-          <div class="small">Progress: <strong id="completedCount">0</strong>/<span id="topicCount">0</span></div>
+        <!-- PERUBAHAN: Wrapper baru untuk statistik dan tombol forum -->
+        <div class="header-actions">
+          <div class="stats-group">
+            <div class="small">Poin: <strong id="points" style="font-size:16px;">0</strong></div>
+            <div class="small">Progress: <strong id="completedCount">0</strong>/<span id="topicCount">0</span></div>
+          </div>
+          <a href="https://github.com/PRABUREVOLUSI/BARBAR/discussions" target="_blank" class="btn forum-btn">
+            💬 Forum Diskusi
+          </a>
         </div>
       </header>
 
@@ -68,7 +72,6 @@
             <div class="topic-details">
               <div class="small">Topik</div>
               <div id="topicTitle" style="font-weight:700; font-size:18px">-</div>
-              <!-- PERUBAHAN: Keterangan durasi video dihapus dari sini -->
               <div class="small">Timer sesi: <span class="timer" id="sessTimer">05:00</span></div>
             </div>
             <div class="topic-controls">
