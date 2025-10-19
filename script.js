@@ -431,7 +431,7 @@ async function renderLeaderboard() {
     const { data, error } = await supabase
         .from('leaderboard')
         .select('name', 'score')
-        .order('score', { ascending: false })
+        .order('score', { ascending: true })
         .limit(5);
 
     if (error) {
