@@ -399,7 +399,6 @@ function renderHistory(){
   historyEl.innerHTML = lines.join('');
 }
 
-// PERUBAHAN: Fungsi Papan Peringkat dirombak total
 async function renderLeaderboard() {
     const boardEl = document.getElementById('leaderboard');
     if (!supabase) {
@@ -408,7 +407,6 @@ async function renderLeaderboard() {
     }
     boardEl.innerHTML = '<div class="small">Memuat data...</div>';
 
-    // 1. Ambil data 25 teratas
     const { data: top25, error: top25Error } = await supabase
         .from('leaderboard')
         .select('name, score')
@@ -421,11 +419,10 @@ async function renderLeaderboard() {
         return;
     }
 
-    // 2. Render 25 teratas
     if (top25.length === 0) {
         boardEl.innerHTML = '<div class="small">Belum ada data. Jadilah yang pertama!</div>';
     } else {
-        boardEl.innerHTML = ''; // Kosongkan papan peringkat
+        boardEl.innerHTML = '';
         const emojis = ['🥇', '🥈', '🥉'];
         top25.forEach((entry, idx) => {
             const div = document.createElement('div');
@@ -436,19 +433,17 @@ async function renderLeaderboard() {
         });
     }
 
-    // 3. Cek apakah pengguna ada di 25 teratas
     const userInTop25 = top25.some(entry => entry.name === appState.userName);
 
-    // 4. Jika tidak ada dan punya nama, cari peringkat spesifiknya
     if (!userInTop25 && appState.userName) {
         const { count, error: countError } = await supabase
             .from('leaderboard')
             .select('*', { count: 'exact', head: true })
-            .gt('score', appState.points); // Hitung berapa banyak yang skornya > skor pengguna
+            .gt('score', appState.points);
         
         if (countError) {
             console.error('Gagal menghitung peringkat pengguna:', countError);
-            return; // Gagal secara diam-diam
+            return;
         }
 
         const userRank = (count ?? 0) + 1;
