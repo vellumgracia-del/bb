@@ -499,6 +499,18 @@ mentorInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter') sendMentor
 sendMentorBtn.addEventListener('click', ()=>{
   const v = mentorInput.value.trim();
   if(!v) return;
+
+  // --- PERUBAHAN DIMULAI DI SINI ---
+  // Kurangi 20 poin setiap kali AI Mentor digunakan.
+  appState.points = Math.max(0, appState.points - 20); // Pastikan skor tidak menjadi negatif
+  saveState(); // Simpan skor baru
+  updateStats(); // Perbarui tampilan UI
+  // Beri notifikasi kepada pengguna tentang pengurangan poin
+  setTimeout(() => {
+    postMentorMessage('Bantuan AI Mentor digunakan (-20 poin).', 'ai');
+  }, 500);
+  // --- PERUBAHAN SELESAI ---
+
   appendMentor(v, 'user');
   mentorInput.value = '';
   const lower = v.toLowerCase();
