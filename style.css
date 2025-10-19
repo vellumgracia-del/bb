@@ -48,9 +48,11 @@ body {
 }
 
 /* -- 2. Layout Utama -- */
+/* PERUBAHAN: Lebar .container diperbesar untuk PC/Laptop */
 .container {
-  width: 1100px;
-  max-width: 100%;
+  width: 100%; /* Memenuhi lebar yang tersedia */
+  max-width: 1440px; /* Batas lebar maksimal baru */
+  margin: 0 auto; /* Menjaga container tetap di tengah */
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 24px;
@@ -257,7 +259,7 @@ video {
     margin-top: 16px;
 }
 
-/* PERUBAHAN: Gaya untuk Splash, Header, dan Forum */
+/* Gaya untuk Splash, Header, dan Forum */
 .splash-content {
   text-align: center;
   color: white;
@@ -323,7 +325,9 @@ video {
 
 /* -- 8. Responsif (Disempurnakan) -- */
 @media (max-width: 1024px) {
+  /* PERUBAHAN: Lebar .container direset kembali ke default untuk tablet */
   .container { 
+    max-width: 100%; /* Memastikan tidak ada batas lebar pada tablet */
     grid-template-columns: 1fr;
     gap: 20px;
   }
