@@ -7,15 +7,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tautan ke file CSS eksternal Anda -->
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
   
-  <!-- Elemen Notifikasi & Overlay -->
+  <!-- 1. Landing Screen / Splash Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-logo">
+      <svg class="header-logo" width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="https://res.cloudinary.com/dgzufaone/image/upload/v1761116986/1000087563_barbar_rghyo1.svg"><path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="#7F5AF0" fill-opacity="0.5"></path><path d="M20 70V30H55C66.0457 30 75 38.9543 75 50C75 61.0457 66.0457 70 55 70H20Z" fill="#7F5AF0"></path></svg>
+      <h1>BARBAR</h1>
+    </div>
+  </div>
+
   <div id="notification" class="notification"></div>
   <div class="overlay" id="completionOverlay"></div>
 
-  <!-- Header Utama Aplikasi -->
   <header class="app-header">
     <div class="header-content">
       <div class="header-left">
@@ -23,28 +32,30 @@
           <span></span><span></span><span></span>
         </button>
         <div class="header-title-group">
-          <svg class="header-logo" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="#7F5AF0" fill-opacity="0.5"></path><path d="M20 70V30H55C66.0457 30 75 38.9543 75 50C75 61.0457 66.0457 70 55 70H20Z" fill="#7F5AF0"></path></svg>
+          <svg class="header-logo" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="https://res.cloudinary.com/dgzufaone/image/upload/v1761116986/1000087563_barbar_rghyo1.svg"><path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="#7F5AF0" fill-opacity="0.5"></path><path d="M20 70V30H55C66.0457 30 75 38.9543 75 50C75 61.0457 66.0457 70 55 70H20Z" fill="#7F5AF0"></path></svg>
           <h1>BARBAR</h1>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Sidebar Navigasi -->
+  <!-- 4. Sidebar dengan Menu Baru -->
   <nav id="sidebar" class="sidebar-nav">
     <div id="welcomeUser" class="welcome-user" style="display: none;">
       Halo, <strong id="userNameDisplay"></strong>!
     </div>
+    <a href="#home" class="nav-link" data-page="homePage">🏠 Beranda</a>
     <a href="#belajar" class="nav-link" data-page="subjectSelectionPage">📚 Mulai Belajar</a>
+    <a href="#mentor" class="nav-link" data-page="aiMentorPage">🤖 AI Mentor</a>
     <a href="https://udinndinn49-debug.github.io/contoh/" target="_blank" class="nav-link">💬 Forum Diskusi</a>
     <a href="#feedback" class="nav-link" data-page="feedbackPage">⭐ Beri Penilaian</a>
     <a href="#fitur" id="fiturTambahanBtn" class="nav-link">✨ Fitur Tambahan</a>
   </nav>
+  
+  <!-- Overlay untuk menutup sidebar (Poin 2) -->
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <!-- Kontainer Halaman Dinamis -->
   <div id="pageContainer" class="page-container">
-
-    <!-- Halaman Landing Awal (Input Nama) -->
     <div id="landingPage" class="page active">
       <div class="landing-content">
         <div class="landing-text">
@@ -58,7 +69,6 @@
       </div>
     </div>
 
-    <!-- Halaman Beranda (Visi Misi, Founder) -->
     <div id="homePage" class="page">
       <div class="home-hero">
         <h3>Visi & Misi Kami</h3>
@@ -67,34 +77,18 @@
       <div class="founder-section">
         <h3>Tim Pendiri</h3>
         <div class="founder-grid">
-          <div class="founder-card">
-            <div class="founder-photo">
-              <img src="https://placehold.co/200x200/1B1B2B/FFFFFE?text=Founder+1" alt="Foto Founder 1">
-            </div>
-            <div class="founder-shape"></div>
-            <h4>Zulfa Fahmiy</h4>
-            <p>Chief Executive Officer</p>
-          </div>
-          <div class="founder-card">
-            <div class="founder-photo">
-               <img src="https://placehold.co/200x200/1B1B2B/FFFFFE?text=Founder+2" alt="Foto Founder 2">
-            </div>
-            <div class="founder-shape"></div>
-            <h4>Prabu Revolusi</h4>
-            <p>Chief Technology Officer</p>
-          </div>
+          <div class="founder-card"><div class="founder-photo"><img src="https://res.cloudinary.com/dgzufaone/image/upload/v1761118376/Gemini_Generated_Image_jxmjhwjxmjhwjxmj_ixh88x.jpg" alt="Foto Zulfa Fahmiy"></div><div class="founder-shape"></div><h4>Zulfa Fahmiy</h4><p>Chief Executive Officer</p></div>
+          <div class="founder-card"><div class="founder-photo"><img src="https://res.cloudinary.com/dgzufaone/image/upload/v1761119341/1000087641_pra_re9gau.png" alt="Foto Prabu Revolusi"></div><div class="founder-shape"></div><h4>Prabu Revolusi</h4><p>Chief Technology Officer</p></div>
         </div>
       </div>
     </div>
     
-    <!-- Halaman Pilih Mata Pelajaran -->
     <div id="subjectSelectionPage" class="page">
         <h2>Pilih Mata Pelajaran</h2>
         <p class="page-subtitle">Pilih salah satu mata pelajaran untuk melihat topik yang tersedia.</p>
         <div id="subjectGrid" class="selection-grid"></div>
     </div>
 
-    <!-- Halaman Pilih Topik -->
     <div id="topicSelectionPage" class="page">
         <button id="backToSubjectsBtn" class="btn back-btn">← Kembali ke Mata Pelajaran</button>
         <h2 id="topicSelectionTitle">Pilih Topik</h2>
@@ -102,12 +96,14 @@
         <div id="topicGrid" class="selection-grid"></div>
     </div>
 
-    <!-- Halaman Aplikasi Utama (Belajar) -->
     <div id="appPage" class="page">
       <div class="container-app">
         <main class="left">
+          <!-- 2. Perbaikan Kolom Video -->
           <div class="card video-card">
-            <video id="topicVideo" controls preload="metadata"><source src="" type="video/mp4"></video>
+             <div class="video-container">
+                <video id="topicVideo" controls preload="metadata"><source src="" type="video/mp4"></video>
+            </div>
             <div class="video-info-wrapper">
               <div class="topic-details">
                 <h3 id="topicTitle">-</h3>
@@ -121,6 +117,7 @@
               </div>
             </div>
           </div>
+          <!-- 2. Perbaikan Tampilan Kuis dengan Animasi -->
           <div class="card quiz" id="quizArea" style="display:none">
             <div id="quizHeader">
               <h4>Kuis Singkat</h4>
@@ -144,32 +141,37 @@
             <div class="card-header">🏆 Papan Peringkat</div>
             <div id="leaderboard" class="scrollable-content"></div>
           </div>
-          <div class="card mentor">
-            <div class="card-header">AI Mentor</div>
-            <div id="mentorLog" class="scrollable-content">
-              <div class="msg ai">Gunakan AI untuk bertanya. Penggunaan akan mengurangi 20 poin.</div>
-            </div>
-            <div class="mentor-input">
-              <input id="mentorInput" type="text" placeholder="Tanya Mentor..." />
-              <button class="btn" id="sendMentor">Kirim</button>
-            </div>
-          </div>
         </aside>
       </div>
     </div>
+    
+    <!-- 5. Halaman AI Mentor Terpisah -->
+    <div id="aiMentorPage" class="page">
+        <h2>AI Mentor</h2>
+        <p class="page-subtitle">Punya pertanyaan? Tanyakan pada mentor AI kami. Layanan saat ini **Gratis** karena sedang *maintenance*.</p>
+        <div class="mentor-page-container card">
+            <div id="mentorLog" class="mentor-log-full">
+              <div class="msg ai">Halo! Saya adalah mentor AI Anda. Tanyakan apa saja terkait pelajaran hari ini. (Saat ini mode maintenance, poin tidak dikurangi).</div>
+            </div>
+            <div class="mentor-input-full">
+              <input id="mentorInput" type="text" placeholder="Tanya Mentor..." />
+              <button class="btn accent-btn" id="sendMentor">Kirim</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- Halaman Feedback -->
     <div id="feedbackPage" class="page">
       <div class="feedback-container">
         <div class="card feedback-wrapper">
           <h3>Beri Penilaian Anda</h3>
           <p class="small">Bagaimana pengalaman belajar Anda hari ini?</p>
           <div class="star-rating" id="starRating">
+              <!-- Bintang kini menggunakan simbol Unicode yang akan diubah oleh JS -->
               <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
           </div>
           <textarea id="feedbackText" placeholder="Ketik saran atau masukan Anda di sini..."></textarea>
           <button id="submitFeedback" class="btn accent-btn animated-btn"><span>Kirim Feedback</span></button>
-          <p id="feedbackThanks" class="small" style="display:none;">Terima kasih atas masukan Anda!</p>
+          <p id="feedbackThanks" class="small" style="display:none; color: var(--green); font-weight: 600; margin-top: 16px;">Terima kasih atas masukan Anda!</p>
         </div>
       </div>
     </div>
@@ -178,7 +180,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js" defer></script>
+  
+  <!-- Tautan ke file JavaScript eksternal Anda -->
+  <script src="script.js"></script>
 </body>
 </html>
 
