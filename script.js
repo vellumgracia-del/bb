@@ -1,19 +1,23 @@
 /* =========================
-  Aplikasi BelajarBareng V3
-  ========================= */
+  Aplikasi BelajarBareng V6
+  [FIXED] Fungsionalitas Star Rating & Supabase Feedback
+========================= */
 
 // --- KONFIGURASI SUPABASE ---
 const SUPABASE_URL = 'https://rgntufyuatlkikwuyrxx.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Qb5hBsxj26EbriOtqipRBQ_a9HNxjx0';
-
 let supabase = null;
 try {
-  if (SUPABASE_URL !== 'URL_SUPABASE_ANDA' && SUPABASE_ANON_KEY !== 'KUNCI_ANON_SUPABASE_ANDA' && window.supabase) {
+  // Pastikan window.supabase tersedia sebelum memanggil createClient
+  if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined') {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch (e) {
   console.error("Supabase client could not be initialized.", e);
 }
+
+// Status AI Mentor (Poin 3)
+const IS_AI_MAINTENANCE = true; // Set ke true untuk menonaktifkan pengurangan poin
 
 // --- DATA TOPIK DAN SOAL ---
 const SUBJECTS_DATA = {
@@ -22,65 +26,65 @@ const SUBJECTS_DATA = {
       { id: "b1q1", q: "Proses memecah makanan secara kimiawi pertama kali terjadi di?", opts:["Lambung","Mulut","Usus Halus"], a:1 },
       { id: "b1q2", q: "Organ yang menyerap sebagian besar nutrisi adalah?", opts:["Usus Besar","Usus Halus","Lambung"], a:1 },
       { id: "b1q3", q: "Enzim yang memulai pencernaan karbohidrat di mulut adalah?", opts:["Lipase","Pepsin","Amilase"], a:2 },
-      { id: "b1q4", q: "Cairan empedu, yang membantu mencerna lemak, diproduksi oleh organ apa?", opts:["Pankreas", "Hati", "Kantung Empedu"], a:1 },
-      { id: "b1q5", q: "Fungsi utama usus besar adalah?", opts:["Mencerna protein", "Menyerap air", "Menghasilkan enzim"], a:1 },
-      { id: "b1q6", q: "Gerakan meremas-remas makanan oleh kerongkongan disebut?", opts:["Difusi", "Osmosis", "Gerak peristaltik"], a:2 },
-      { id: "b1q7", q: "Vitamin K banyak diproduksi oleh bakteri baik di dalam?", opts:["Lambung", "Usus halus", "Usus besar"], a:2 },
-      { id: "b1q8", q: "Protein mulai dicerna secara kimiawi di organ?", opts:["Mulut", "Lambung", "Usus halus"], a:1 },
-      { id: "b1q9", q: "Apa nama katup yang memisahkan lambung dan usus halus?", opts:["Epiglotis", "Sfingter esofagus", "Pilorus"], a:2 },
-      { id: "b1q10", q: "Penyakit yang disebabkan oleh peradangan pada usus buntu disebut?", opts:["Maag", "Apendisitis", "Diare"], a:1 }
+      { id: "b1q4", q: "Bagian tubuh yang menghasilkan asam klorida (HCl)?", opts:["Pankreas","Lambung","Hati"], a:1 },
+      { id: "b1q5", q: "Setelah dicerna, makanan bergerak dari lambung ke?", opts:["Kerongkongan","Usus Halus","Usus Besar"], a:1 },
+      { id: "b1q6", q: "Vitamin K dan air diserap di organ?", opts:["Usus Halus","Lambung","Usus Besar"], a:2 },
+      { id: "b1q7", q: "Pencernaan protein dimulai di?", opts:["Mulut","Lambung","Usus Halus"], a:1 },
+      { id: "b1q8", q: "Yang bukan termasuk organ pencernaan tambahan?", opts:["Hati","Pankreas","Usus Halus"], a:2 },
+      { id: "b1q9", q: "Apa fungsi utama empedu?", opts:["Memecah protein","Mengemulsi lemak","Menetralkan asam lambung"], a:1 },
+      { id: "b1q10", q: "Gerakan meremas dan mendorong makanan di kerongkongan disebut?", opts:["Gerak Kimiawi","Gerak Peristaltik","Gerak Refleks"], a:1 }
     ] },
-    { id: "b2", title: "Sirkulasi Darah", video: "https://res.cloudinary.com/dgzufaone/video/upload/v1760709823/barbar/Apa_yang_terjadi_di_dalam_tubuh_saat_darah_mengalir__-_Belajar_IPA_cj8b2r.mp4", description: "Sirkulasi darah ringkas (≤3 menit).", questions: [
+    { id: "b2", title: "Sirkulasi Darah", video: "https.cloudinary.com/dgzufaone/video/upload/v1760709823/barbar/Apa_yang_terjadi_di_dalam_tubuh_saat_darah_mengalir__-_Belajar_IPA_cj8b2r.mp4", description: "Sirkulasi darah ringkas (≤3 menit).", questions: [
       { id: "b2q1", q: "Bagian darah yang berperan dalam pembekuan darah?", opts:["Eritrosit","Leukosit","Trombosit"], a:2 },
       { id: "b2q2", q: "Pembuluh yang membawa darah kaya oksigen dari paru-paru ke jantung?", opts:["Vena Kava","Arteri Pulmonalis","Vena Pulmonalis"], a:2 },
-      { id: "b2q3", q: "Sel darah yang berfungsi mengangkut oksigen adalah?", opts:["Leukosit", "Trombosit", "Eritrosit"], a:2 },
-      { id: "b2q4", q: "Bilik jantung yang memompa darah ke seluruh tubuh adalah?", opts:["Bilik Kanan", "Bilik Kiri", "Serambi Kiri"], a:1 },
-      { id: "b2q5", q: "Pembuluh darah yang membawa darah kembali ke jantung disebut?", opts:["Arteri", "Vena", "Kapiler"], a:1 },
-      { id: "b2q6", q: "Golongan darah yang disebut sebagai donor universal adalah?", opts:["A", "B", "O"], a:2 },
-      { id: "b2q7", q: "Penyakit kekurangan sel darah merah disebut?", opts:["Leukemia", "Anemia", "Hipertensi"], a:1 },
-      { id: "b2q8", q: "Di manakah sel darah merah diproduksi?", opts:["Hati", "Sumsum tulang", "Limpa"], a:1 },
-      { id: "b2q9", q: "Tekanan darah normal untuk orang dewasa adalah sekitar?", opts:["120/80 mmHg", "140/90 mmHg", "100/60 mmHg"], a:0 },
-      { id: "b2q10", q: "Apa fungsi utama sel darah putih (leukosit)?", opts:["Mengangkut Oksigen", "Melawan infeksi", "Pembekuan darah"], a:1 }
+      { id: "b2q3", q: "Sel darah yang berfungsi melawan infeksi?", opts:["Eritrosit","Leukosit","Plasma Darah"], a:1 },
+      { id: "b2q4", q: "Sirkulasi darah dari jantung ke seluruh tubuh dan kembali ke jantung disebut?", opts:["Sirkulasi Paru-paru","Sirkulasi Sistemik","Sirkulasi Koroner"], a:1 },
+      { id: "b2q5", q: "Ruang jantung yang pertama kali menerima darah kaya oksigen dari paru-paru?", opts:["Serambi Kanan","Bilik Kanan","Serambi Kiri"], a:2 },
+      { id: "b2q6", q: "Pembuluh darah terkecil tempat pertukaran gas terjadi?", opts:["Arteri","Vena","Kapiler"], a:2 },
+      { id: "b2q7", q: "Warna merah darah disebabkan oleh zat?", opts:["Leukosit","Hemoglobin","Fibrinogen"], a:1 },
+      { id: "b2q8", q: "Tekanan darah sistolik terjadi saat jantung..", opts:["Mengembang","Berkontraksi","Istahat"], a:1 },
+      { id: "b2q9", q: "Pembuluh darah yang memiliki katup sepanjang jalannya?", opts:["Arteri","Kapiler","Vena"], a:2 },
+      { id: "b2q10", q: "Organ yang berfungsi menyaring darah dan membuang limbah nitrogen?", opts:["Jantung","Paru-paru","Ginjal"], a:2 }
     ] }
   ],
   "Matematika": [
-    { id: "m1", title: "Konsep Pecahan", video: "https://res.cloudinary.com/dgzufaone/video/upload/v1760751491/barbar/Pecahan_-_Animasi_Matematika_SD_n2roxi.mp4", description: "Apa itu pembilang dan penyebut?", questions: [
+    { id: "m1", title: "Konsep Pecahan", video: "https.cloudinary.com/dgzufaone/video/upload/v1760751491/barbar/Pecahan_-_Animasi_Matematika_SD_n2roxi.mp4", description: "Apa itu pembilang dan penyebut?", questions: [
       { id: "m1q1", q: "Berapakah hasil dari 1/2 + 1/4?", opts:["2/6","3/4","1/3"], a:1 },
       { id: "m1q2", q: "Angka di bagian bawah pecahan disebut?", opts:["Pembilang","Penyebut","Koefisien"], a:1 },
-      { id: "m1q3", q: "Bentuk sederhana dari pecahan 4/8 adalah?", opts:["1/2", "2/4", "1/4"], a:0 },
-      { id: "m1q4", q: "Mana yang lebih besar, 2/3 atau 3/5?", opts:["3/5", "Keduanya sama", "2/3"], a:2 },
-      { id: "m1q5", q: "Hasil dari 3/4 x 2/3 adalah?", opts:["5/7", "6/12", "1/3"], a:1 },
-      { id: "m1q6", q: "Berapa nilai desimal dari 1/5?", opts:["0.1", "0.2", "0.5"], a:1 },
-      { id: "m1q7", q: "Ubah 0.75 menjadi bentuk pecahan paling sederhana.", opts:["75/100", "3/4", "7/5"], a:1 },
-      { id: "m1q8", q: "Hasil dari 2/5 : 1/5 adalah?", opts:["2", "1/2", "1"], a:0 },
-      { id: "m1q9", q: "Ibu memotong kue menjadi 8 bagian. Jika 3 bagian dimakan, sisa kue adalah?", opts:["3/8", "8/3", "5/8"], a:2 },
-      { id: "m1q10", q: "1 1/2 jika diubah menjadi pecahan biasa menjadi?", opts:["11/2", "3/2", "2/3"], a:1 }
+      { id: "m1q3", q: "Bentuk desimal dari 3/5 adalah?", opts:["0.3","0.6","0.5"], a:1 },
+      { id: "m1q4", q: "Pecahan senilai dengan 2/3?", opts:["4/5","6/9","3/4"], a:1 },
+      { id: "m1q5", q: "Berapakah hasil dari 5/6 - 1/3?", opts:["4/3","1/2","1/3"], a:2 },
+      { id: "m1q6", q: "Angka 0.75 dalam bentuk pecahan biasa adalah?", opts:["1/4","3/4","7/10"], a:1 },
+      { id: "m1q7", q: "Hasil perkalian 2/5 x 10/4?", opts:["1","2","1/2"], a:0 },
+      { id: "m1q8", q: "Pecahan yang paling besar nilainya: 1/2, 2/5, 3/10?", opts:["1/2","2/5","3/10"], a:0 },
+      { id: "m1q9", q: "Berapakah hasil pembagian 4/5 : 2/10?", opts:["8/50","4","2"], a:1 },
+      { id: "m1q10", q: "Bentuk persen dari 1/4 adalah?", opts:["14%","25%","40%"], a:1 }
     ] },
-    { id: "m2", title: "Dasar Aljabar", video: "https://res.cloudinary.com/dgzufaone/video/upload/v1760751491/barbar/Mengenal_Unsur-Unsur_Aljabar___Matematika_Kelas_7_simenh.mp4", description: "Variabel dan konstanta (≤3 menit).", questions: [
-      { id: "m2q1", q: "Jika 2x + 5 = 11, berapakah nilai x?", opts:["2","3","4"], a:1 },
-      { id: "m2q2", q: "Pada bentuk aljabar 3a + 7, yang disebut konstanta adalah?", opts:["3a", "a", "7"], a:2 },
-      { id: "m2q3", q: "Sederhanakan bentuk 5x + 2y - 3x + y.", opts:["2x + 3y", "8x + 3y", "2x + y"], a:0 },
-      { id: "m2q4", q: "Jika a = 4, maka nilai dari 3a - 2 adalah?", opts:["12", "10", "14"], a:1 },
-      { id: "m2q5", q: "Variabel pada bentuk aljabar 4p² - q + 5 adalah?", opts:["p dan q", "p saja", "4 dan 5"], a:0 },
-      { id: "m2q6", q: "Hasil dari (x + 2)(x + 3) adalah?", opts:["x² + 6", "x² + 5x + 6", "2x + 5"], a:1 },
-      { id: "m2q7", q: "Jika 4y = 20, maka nilai y adalah?", opts:["5", "4", "80"], a:0 },
-      { id: "m2q8", q: "Suku yang sejenis dari 7ab + 3ac - 5ab adalah?", opts:["7ab dan 3ac", "3ac dan -5ab", "7ab dan -5ab"], a:2 },
-      { id: "m2q9", q: "Berapa hasil dari (2x)³?", opts:["6x", "2x³", "8x³"], a:2 },
-      { id: "m2q10", q: "Faktorkan bentuk x² - 9.", opts:["(x-3)(x-3)", "(x-9)(x+1)", "(x-3)(x+3)"], a:2 }
+    { id: "m2", title: "Teorema Pythagoras", video: "https://res.cloudinary.com/dgzufaone/video/upload/v1761116900/Teorema_Pythagoras_dan_Pembuktian_dengan_Animasi_arpdtu.mp4", description: "Mencari sisi miring segitiga siku-siku.", questions: [
+      { id: "m2q1", q: "Rumus Teorema Pythagoras untuk sisi miring (c) adalah?", opts:["a² + b² = c²","a² - b² = c²","a + b = c"], a:0 },
+      { id: "m2q2", q: "Jika a=3 dan b=4, maka panjang sisi miring c adalah?", opts:["5","7","25"], a:0 },
+      { id: "m2q3", q: "Syarat utama penggunaan Teorema Pythagoras adalah?", opts:["Segitiga sama sisi","Segitiga siku-siku","Segitiga sembarang"], a:1 },
+      { id: "m2q4", q: "Jika c=13 dan a=5, maka panjang sisi b adalah?", opts:["8","12","144"], a:1 },
+      { id: "m2q5", q: "Tripel Pythagoras yang benar?", opts:["(2, 3, 4)","(5, 12, 13)","(6, 8, 9)"], a:1 },
+      { id: "m2q6", q: "Sisi yang berhadapan dengan sudut siku-siku disebut?", opts:["Sisi alas","Sisi tegak","Hipotenusa"], a:2 },
+      { id: "m2q7", q: "Jika luas persegi yang dibangun di sisi c adalah 100, dan sisi a adalah 6. Berapa luas persegi di sisi b?", opts:["64","136","16"], a:0 },
+      { id: "m2q8", q: "Berapa nilai $x$ jika sisi tegak adalah $x$ dan $x+1$, dan sisi miring adalah 5? ($x$ positif)", opts:["3","4","5"], a:0 },
+      { id: "m2q9", q: "Penerapan Pythagoras dalam kehidupan sehari-hari?", opts:["Menghitung volume","Mengukur kemiringan tangga","Menghitung keliling lingkaran"], a:1 },
+      { id: "m2q10", q: "Jika $a^2 + b^2 < c^2$, jenis segitiga apa itu?", opts:["Siku-siku","Tumpul","Lancip"], a:1 }
     ] }
   ],
   "Ekonomi": [
-    { id: "e1", title: "Permintaan & Penawaran", video: "https://res.cloudinary.com/dgzufaone/video/upload/v1760750374/introduction-to-supply-and-demand_PwrjcZaP_x6tsu1.mp4", description: "Mengenal kurva D dan S (≤3 menit).", questions: [
+    { id: "e1", title: "Permintaan & Penawaran", video: "https.cloudinary.com/dgzufaone/video/upload/v1760750374/introduction-to-supply-and-demand_PwrjcZaP_x6tsu1.mp4", description: "Mengenal kurva D dan S (≤3 menit).", questions: [
       { id: "e1q1", q: "Jika harga barang naik, maka jumlah barang yang diminta cenderung...", opts:["Naik","Tetap","Turun"], a:2 },
       { id: "e1q2", q: "Titik pertemuan kurva permintaan dan penawaran disebut?", opts:["Harga Maksimum","Keseimbangan Pasar","Titik Impas"], a:1 },
-      { id: "e1q3", q: "Hukum penawaran menyatakan, jika harga naik, maka jumlah yang ditawarkan akan...", opts:["Naik", "Turun", "Tetap"], a:0 },
-      { id: "e1q4", q: "Barang yang permintaannya meningkat ketika pendapatan konsumen meningkat disebut barang...", opts:["Inferior", "Normal", "Publik"], a:1 },
-      { id: "e1q5", q: "Pergeseran kurva permintaan ke kanan berarti...", opts:["Permintaan menurun", "Permintaan meningkat", "Penawaran meningkat"], a:1 },
-      { id: "e1q6", q: "Faktor yang TIDAK mempengaruhi permintaan adalah...", opts:["Harga barang itu sendiri", "Selera konsumen", "Biaya produksi"], a:2 },
-      { id: "e1q7", q: "Ketika jumlah yang ditawarkan lebih besar dari jumlah yang diminta, terjadi...", opts:["Kelangkaan", "Surplus", "Inflasi"], a:1 },
-      { id: "e1q8", q: "Pemerintah menetapkan harga di bawah harga keseimbangan, ini disebut...", opts:["Harga dasar (floor price)", "Harga atap (ceiling price)", "Pajak"], a:1 },
-      { id: "e1q9", q: "Barang pengganti untuk teh adalah...", opts:["Gula", "Kopi", "Air mineral"], a:1 },
-      { id: "e1q10", q: "Elastisitas permintaan mengukur seberapa responsif...", opts:["Penjual terhadap pajak", "Jumlah yang diminta terhadap perubahan harga", "Biaya produksi terhadap teknologi"], a:1 }
+      { id: "e1q3", q: "Hukum Penawaran menyatakan jika harga naik, maka jumlah barang yang ditawarkan...", opts:["Menurun","Tetap","Meningkat"], a:2 },
+      { id: "e1q4", q: "Faktor utama yang menyebabkan pergerakan sepanjang kurva permintaan?", opts:["Pendapatan Konsumen","Perubahan Harga Barang Itu Sendiri","Selera Konsumen"], a:1 },
+      { id: "e1q5", q: "Jika pendapatan konsumen meningkat, kurva permintaan akan bergeser ke...", opts:["Kiri","Kanan","Tetap di tempat"], a:1 },
+      { id: "e1q6", q: "Contoh barang komplementer?", opts:["Kopi dan Teh","Gula dan Kopi","Laptop dan PC"], a:1 },
+      { id: "e1q7", q: "Kondisi dimana jumlah barang yang diminta lebih besar dari yang ditawarkan?", opts:["Surplus","Keseimbangan","Kekurangan (Shortage)"], a:2 },
+      { id: "e1q8", q: "Kenaikan biaya produksi akan menggeser kurva penawaran ke...", opts:["Kanan","Kiri","Tetap di tempat"], a:1 },
+      { id: "e1q9", q: "Elastisitas yang nilainya lebih dari 1 disebut elastis...", opts:["Inelastis","Sempurna","Elastis"], a:2 },
+      { id: "e1q10", q: "Permintaan pasar adalah penjumlahan dari...", opts:["Permintaan Individu","Penawaran Pasar","Pendapatan Nasional"], a:0 }
     ] }
   ]
 };
@@ -96,9 +100,8 @@ const appState = {
   quizQueue: [],
   points: 0,
   completed: {},
-  mistakes: {},
   userName: '',
-  openaiApiKey: '' // Kunci API untuk fungsionalitas AI Mentor
+  currentRating: 0, // NEW: State untuk menyimpan rating saat ini
 };
 
 function loadState(){
@@ -109,7 +112,8 @@ function loadState(){
       if(s.points) appState.points = s.points;
       if(s.completed) appState.completed = s.completed;
     }
-    appState.userName = localStorage.getItem('bb_username_v3') || '';
+    // Pastikan nama pengguna memiliki nilai default, bahkan jika kosong
+    appState.userName = localStorage.getItem('bb_username_v3') || 'Pemain Anonim'; 
   } catch(e) { console.warn("Gagal memuat state:", e); }
 }
 
@@ -122,7 +126,7 @@ function saveState(){
 const ui = {
     pageContainer: document.getElementById('pageContainer'),
     notification: document.getElementById('notification'),
-    // ... (tambahkan semua elemen UI lainnya di sini)
+    splashScreen: document.getElementById('splashScreen'),
     subjectsWrap: document.getElementById('subjectGrid'),
     topicsWrap: document.getElementById('topicGrid'),
     topicTitle: document.getElementById('topicTitle'),
@@ -155,6 +159,7 @@ const ui = {
     fiturTambahanBtn: document.getElementById('fiturTambahanBtn'),
     backToSubjectsBtn: document.getElementById('backToSubjectsBtn'),
     topicSelectionTitle: document.getElementById('topicSelectionTitle'),
+    sidebarOverlay: document.getElementById('sidebarOverlay'),
 };
 
 // --- MANAJEMEN HALAMAN & NAVIGASI ---
@@ -168,29 +173,41 @@ function showPage(pageId) {
     ui.sidebar.classList.remove('open');
 }
 
+// Fungsi baru untuk menutup sidebar
+function closeSidebar() {
+    ui.sidebar.classList.remove('open');
+}
+
+// Fungsi notifikasi diperbaiki (2000ms = 2 detik)
 function showNotification(message) {
     ui.notification.textContent = message;
     ui.notification.classList.add('show');
+    
+    // Hapus notifikasi setelah 2 detik (2000ms)
     setTimeout(() => {
         ui.notification.classList.remove('show');
-    }, 3000);
+    }, 2000); 
 }
 
 // --- INISIALISASI APLIKASI ---
 function init(){
-    loadState();
-    
-    if (appState.userName) {
-        ui.userNameDisplay.textContent = appState.userName;
-        ui.welcomeUser.style.display = 'block';
-        showPage('homePage');
-    } else {
-        showPage('landingPage');
-    }
+    // Tampilkan splash screen selama 1.5 detik
+    setTimeout(() => {
+        ui.splashScreen.classList.add('hidden');
+        loadState();
+        
+        if (appState.userName && appState.userName !== 'Pemain Anonim') {
+            ui.userNameDisplay.textContent = appState.userName;
+            ui.welcomeUser.style.display = 'block';
+            showPage('homePage');
+        } else {
+            showPage('landingPage');
+        }
+        renderLeaderboard(); // Panggil di sini agar papan peringkat terisi segera
+    }, 1500);
 
-    renderLeaderboard();
-    initFeedbackSystem();
     setupEventListeners();
+    setupStarRating(); // NEW: Inisialisasi logika bintang
 }
 
 // --- RENDER KONTEN DINAMIS ---
@@ -219,7 +236,8 @@ function renderTopicSelection(subjectName) {
         const card = document.createElement('a');
         card.href = "#";
         card.className = 'selection-card';
-        card.innerHTML = `<h4>${topic.title}</h4><p>${topic.description}</p>`;
+        const status = appState.completed[topic.id] ? ' (✅ Selesai)' : '';
+        card.innerHTML = `<h4>${topic.title} ${status}</h4><p>${topic.description}</p>`;
         card.onclick = (e) => {
             e.preventDefault();
             appState.currentTopicIndex = index;
@@ -233,8 +251,11 @@ function renderTopicSelection(subjectName) {
 function loadTopic(index){
   const t = currentTopic();
   ui.topicTitle.textContent = t.title;
-  ui.topicVideo.querySelector('source').src = t.video;
-  ui.topicVideo.load();
+  const videoSource = ui.topicVideo.querySelector('source');
+  if (videoSource) {
+    videoSource.src = t.video;
+    ui.topicVideo.load();
+  }
   appState.quizQueue = shuffleArray(t.questions.map(q=> ({...q, attempts:0}) ));
   renderQuiz();
   updateProgBar();
@@ -263,22 +284,25 @@ function startSession(){
   }, 1000);
   ui.topicVideo.play().catch(()=>{});
   ui.quizArea.style.display = 'block';
+  ui.startSessionBtn.textContent = 'Sesi Berjalan';
+  ui.startSessionBtn.disabled = true;
 }
 
 function renderQuiz(){
   ui.questionWrap.innerHTML = '';
   if(!appState.quizQueue || appState.quizQueue.length === 0){
-    ui.questionWrap.innerHTML = '<p class="small">Tidak ada soal untuk topik ini.</p>';
+    ui.questionWrap.innerHTML = '<p class="small">Tidak ada soal tersisa.</p>';
     ui.remainingQ.textContent = 0;
+    ui.endSessionBtn.style.display = 'block';
     return;
   }
   const q = appState.quizQueue[0];
   ui.questionWrap.innerHTML = `<p class="question-text">${q.q}</p>`;
   const optsWrap = document.createElement('div');
-  optsWrap.className = 'options';
+  optsWrap.className = 'options flex flex-col gap-3 mt-4';
   q.opts.forEach((o, i)=>{
     const op = document.createElement('button');
-    op.className = 'option animated-btn';
+    op.className = 'option animated-btn btn'; 
     op.innerHTML = `<span>${o}</span>`;
     op.onclick = ()=> handleAnswer(q, i, op);
     optsWrap.appendChild(op);
@@ -302,7 +326,7 @@ function handleAnswer(question, selectedIndex, elNode){
     appState.quizQueue.shift();
   } else {
     elNode.classList.add('wrong');
-    appState.quizQueue.push(appState.quizQueue.shift()); // Put back to the end
+    appState.quizQueue.push(appState.quizQueue.shift()); // Kembalikan ke akhir antrian
   }
   
   setTimeout(()=>{
@@ -310,6 +334,7 @@ function handleAnswer(question, selectedIndex, elNode){
       renderQuiz();
     } else {
       ui.questionWrap.innerHTML = '<p class="small" style="text-align:center;">🎉<br/><b>Selamat!</b><br/>Semua soal selesai.</p>';
+      // endSession akan dipanggil oleh tombol Akhiri Sesi atau timer.
       ui.endSessionBtn.style.display = 'block';
     }
     updateStats();
@@ -325,19 +350,28 @@ function endSession(timedOut=false){
   if (!isAlreadyCompleted) {
       appState.points += 20; // Bonus
       markCompleted(true);
-      postMentorMessage(`Bagus! Kamu dapat bonus 20 poin untuk topik "${t.title}".`, 'ai');
+      showNotification(`Topik selesai! Bonus 20 poin untuk topik "${t.title}".`);
       if(window.confetti) confetti();
   } else {
-      postMentorMessage(`Kamu menyelesaikan topik "${t.title}" lagi! Kerja bagus!`, 'ai');
+      showNotification(`Anda menyelesaikan topik "${t.title}" lagi! Kerja bagus!`);
   }
   
+  ui.sessTimer.textContent = formatTime(appState.sessionSeconds);
+  ui.startSessionBtn.textContent = 'Mulai Sesi';
+  ui.startSessionBtn.disabled = false;
+  
+  // Sembunyikan kuis setelah 3 detik
+  setTimeout(() => {
+    ui.quizArea.style.display = 'none';
+  }, 3000);
+  
   updateStats();
-  ui.quizArea.style.display = 'none';
 }
 
 function markCompleted(success){
   if(success) appState.completed[currentTopic().id] = true;
   updateStats();
+  renderTopicSelection(appState.currentSubject); // Refresh list topik
 }
 
 function shuffleArray(arr){
@@ -346,7 +380,9 @@ function shuffleArray(arr){
 function currentTopic(){ return appState.subjects[appState.currentSubject][appState.currentTopicIndex]; }
 
 function updateProgBar(){
-  const done = appState.completed[currentTopic()?.id] ? 100 : 0;
+  const topic = currentTopic();
+  if (!topic) return;
+  const done = appState.completed[topic.id] ? 100 : 0;
   ui.progBar.style.width = done + '%';
 }
 
@@ -355,65 +391,216 @@ function updateStats(){
   ui.doneTopicsEl.textContent = Object.values(appState.completed).filter(v=>v).length;
   ui.totalPointsEl.textContent = appState.points;
   updateProgBar();
-  updateUserScore();
+  updateUserScore(); // Memanggil update score ke DB
 }
 
 // --- PAPAN PERINGKAT & AI MENTOR ---
 async function renderLeaderboard() {
     const boardEl = document.getElementById('leaderboard');
-    if (!supabase) return;
+    if (!supabase) { 
+        boardEl.innerHTML = '<p class="small">⚠️ Database tidak terhubung. Papan peringkat tidak tersedia.</p>';
+        return; 
+    }
     boardEl.innerHTML = '<p class="small">Memuat data...</p>';
 
-    const { data, error } = await supabase
-        .from('leaderboard').select('name, score').order('score', { ascending: false }).limit(25);
+    try {
+        const { data, error } = await supabase
+            .from('leaderboard').select('name, score').order('score', { ascending: false }).limit(25);
 
-    if (error) { boardEl.innerHTML = '<p class="small">Gagal memuat data.</p>'; return; }
-    
-    boardEl.innerHTML = '';
-    const emojis = ['🥇', '🥈', '🥉'];
-    data.forEach((entry, idx) => {
-        const div = document.createElement('div');
-        div.className = `leaderboard-entry small ${entry.name === appState.userName ? 'current-user' : ''}`;
-        div.innerHTML = `${emojis[idx] || `${idx + 1}.`} <strong>${entry.name}</strong> - ${entry.score} poin`;
-        boardEl.appendChild(div);
-    });
+        if (error) { 
+            // Jika error, tampilkan pesan spesifik
+            boardEl.innerHTML = `<p class="small">Gagal memuat: Periksa RLS/Schema Tabel di Supabase. (${error.message})</p>`; 
+            console.error('Supabase Leaderboard Error (Check RLS/Schema):', error);
+            return; 
+        }
+        
+        boardEl.innerHTML = '';
+        if (data && data.length > 0) {
+            const emojis = ['🥇', '🥈', '🥉'];
+            data.forEach((entry, idx) => {
+                const div = document.createElement('div');
+                // Tambahkan pengecekan jika entry.name null/undefined
+                const entryName = entry.name || 'Nama Kosong'; 
+                div.className = `leaderboard-entry small ${entryName === appState.userName ? 'current-user' : ''}`;
+                const rank = emojis[idx] || `${idx + 1}.`;
+                div.innerHTML = `${rank} <span><strong>${entryName}</strong></span> <span>${entry.score} poin</span>`;
+                boardEl.appendChild(div);
+            });
+        } else {
+            boardEl.innerHTML = '<p class="small">Belum ada data di papan peringkat. Mulai kuis untuk masuk!</p>';
+        }
+    } catch (e) {
+         boardEl.innerHTML = '<p class="small">Gagal memuat data karena error koneksi/eksekusi.</p>';
+         console.error("Leaderboard Fetch Error:", e);
+    }
 }
 
 async function updateUserScore() {
-    if (!appState.userName || !supabase) return;
-    await supabase.from('leaderboard').upsert({ name: appState.userName, score: appState.points }, { onConflict: 'name' });
-    renderLeaderboard();
+    // Hanya update jika nama pengguna valid dan supabase terhubung
+    if (appState.userName === 'Pemain Anonim' || !supabase) return; 
+    try {
+        // Gunakan upsert dengan kolom name dan score
+        const { error } = await supabase.from('leaderboard').upsert({ name: appState.userName, score: appState.points }, { onConflict: 'name' });
+        if (error) throw error;
+        renderLeaderboard();
+    } catch(e) {
+        console.warn("Gagal update score ke Supabase:", e.message);
+    }
 }
 
-function appendMentor(msg, who='ai'){
-  const div = document.createElement('div');
-  div.className = 'msg ' + (who==='ai' ? 'ai' : 'user');
-  div.textContent = msg;
-  ui.mentorLog.appendChild(div);
-  ui.mentorLog.scrollTop = ui.mentorLog.scrollHeight;
-}
-function postMentorMessage(text, who='ai'){ appendMentor(text, who); }
-
-// --- FEEDBACK & EVENT LISTENERS ---
-function initFeedbackSystem() {
-    // ... (Logika feedback tetap sama)
+function postMentorMessage(text, who='ai'){ 
+    const div = document.createElement('div');
+    div.className = 'msg ' + (who==='ai' ? 'ai : 'user');
+    div.textContent = text;
+    ui.mentorLog.appendChild(div);
+    ui.mentorLog.scrollTop = ui.mentorLog.scrollHeight;
 }
 
+// Logika pengiriman pesan mentor (Poin 3)
+function sendMentorMessage() {
+    const v = ui.mentorInput.value.trim();
+    if(!v) return;
+    postMentorMessage(v, 'user');
+    ui.mentorInput.value = '';
+    
+    if(IS_AI_MAINTENANCE) {
+        // Mode maintenance aktif: Poin tidak dikurangi
+        postMentorMessage('Maaf, Mentor AI sedang dalam mode pemeliharaan (maintenance). Pertanyaan Anda telah diterima dan akan dijawab segera setelah sistem kembali normal. Poin Anda TIDAK dikurangi.', 'ai');
+    } else {
+        // Logika normal: Poin dikurangi
+        if(appState.points >= 20) {
+            appState.points -= 20;
+            showNotification('Bantuan AI digunakan (-20 poin).');
+            updateStats();
+            // *LOGIKA PANGGIL API AI DI SINI*
+            postMentorMessage('Maaf, koneksi ke AI sedang dalam pengembangan. Poin Anda telah dikembalikan untuk sementara.', 'ai');
+            // Logika untuk mengembalikan poin jika API belum siap (jika tidak terintegrasi sungguhan)
+            setTimeout(() => {
+                appState.points += 20;
+                updateStats();
+            }, 1000);
+        } else {
+            postMentorMessage('Maaf, poin Anda tidak cukup (minimal 20 poin) untuk menggunakan AI Mentor.', 'ai');
+        }
+    }
+}
+
+// --- LOGIKA FEEDBACK (NEW) ---
+
+function setupStarRating() {
+  // 1. Tambahkan event listener untuk setiap bintang
+  ui.starRatingContainer.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', () => {
+      const rating = parseInt(star.dataset.value, 10);
+      appState.currentRating = rating;
+      updateStarVisuals(rating);
+    });
+    // Efek hover
+    star.addEventListener('mouseover', () => {
+      updateStarVisuals(parseInt(star.dataset.value, 10), true);
+    });
+    star.addEventListener('mouseout', () => {
+      updateStarVisuals(appState.currentRating);
+    });
+  });
+  
+  ui.submitFeedbackBtn.addEventListener('click', submitFeedback);
+}
+
+function updateStarVisuals(rating, hover = false) {
+  ui.starRatingContainer.querySelectorAll('.star').forEach(star => {
+    const starValue = parseInt(star.dataset.value, 10);
+    
+    // Aturan visual: tampilkan bintang penuh (★) jika nilainya <= rating
+    if (starValue <= rating) {
+      star.textContent = '★'; // Bintang penuh
+      star.classList.add('selected');
+    } else {
+      star.textContent = '☆'; // Bintang kosong
+      star.classList.remove('selected');
+    }
+  });
+}
+
+async function submitFeedback() {
+    if (!supabase) {
+        showNotification('Gagal: Koneksi database tidak tersedia.');
+        return;
+    }
+
+    const rating = appState.currentRating;
+    const feedback = ui.feedbackText.value.trim();
+
+    if (appState.userName === 'Pemain Anonim') {
+        showNotification("Mohon masukkan nama Anda di Halaman Depan sebelum memberi penilaian.");
+        return;
+    }
+
+    if (rating === 0) {
+        showNotification('Anda harus memberikan minimal 1 bintang.');
+        return;
+    }
+
+    ui.submitFeedbackBtn.disabled = true;
+    ui.submitFeedbackBtn.innerHTML = '<span>Mengirim...</span>';
+
+    try {
+        // Gunakan tabel 'feedback' yang akan kita buat di Supabase
+        const { error } = await supabase
+            .from('feedback') 
+            .insert([
+                {
+                    user_name: appState.userName,
+                    rating: rating,
+                    feedback_text: feedback,
+                }
+            ]);
+
+        if (error) throw error;
+
+        ui.feedbackThanks.style.display = 'block';
+        showNotification('Terima kasih! Penilaian Anda berhasil dikirim.');
+
+        // Reset UI setelah sukses
+        appState.currentRating = 0;
+        ui.feedbackText.value = '';
+        updateStarVisuals(0);
+        
+        setTimeout(() => {
+            ui.feedbackThanks.style.display = 'none';
+            ui.submitFeedbackBtn.disabled = false;
+            ui.submitFeedbackBtn.innerHTML = '<span>Kirim Feedback</span>';
+        }, 3000);
+
+    } catch (e) {
+        console.error('Gagal mengirim feedback:', e);
+        showNotification('Gagal mengirim feedback: ' + (e.message || 'Periksa RLS/Tabel Feedback di Supabase.'));
+        ui.submitFeedbackBtn.disabled = false;
+        ui.submitFeedbackBtn.innerHTML = '<span>Kirim Feedback</span>';
+    }
+}
+
+
+// --- EVENT LISTENERS ---
 function setupEventListeners() {
+    // Toggle Sidebar
     ui.hamburgerBtn.addEventListener('click', () => ui.sidebar.classList.toggle('open'));
+    ui.sidebarOverlay.addEventListener('click', closeSidebar); // Tutup sidebar saat overlay diklik
     
     ui.navLinks.forEach(link => {
-        if (link.id === 'fiturTambahanBtn') return; // Tangani secara terpisah
+        if (link.id === 'fiturTambahanBtn') return; 
         link.addEventListener('click', (e) => {
             if (link.target === "_blank") return;
             e.preventDefault();
             const pageId = link.dataset.page;
 
+            if (appState.userName === 'Pemain Anonim' && pageId !== 'landingPage' && pageId !== 'homePage') {
+                showPage('landingPage');
+                showNotification("Masukkan nama Anda untuk melanjutkan!");
+                return;
+            }
+            
             if (pageId === 'subjectSelectionPage') {
-                if (!appState.userName) {
-                    showPage('landingPage');
-                    return;
-                }
                 renderSubjectSelection();
             }
             showPage(pageId);
@@ -431,7 +618,8 @@ function setupEventListeners() {
       ui.userNameDisplay.textContent = name;
       ui.welcomeUser.style.display = 'block';
       showPage('homePage');
-      updateStats();
+      updateStats(); // Memulai update score (INSERT nama pertama kali)
+      renderLeaderboard(); // Segarkan leaderboard setelah nama dimasukkan
     });
 
     ui.fiturTambahanBtn.addEventListener('click', (e) => {
@@ -442,28 +630,16 @@ function setupEventListeners() {
 
     ui.backToSubjectsBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        renderSubjectSelection();
         showPage('subjectSelectionPage');
     });
 
+B.C.E.
     ui.startSessionBtn.addEventListener('click', startSession);
     ui.endSessionBtn.addEventListener('click', () => endSession(false));
     
     ui.mentorInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') ui.sendMentorBtn.click(); });
-    ui.sendMentorBtn.addEventListener('click', ()=>{
-      const v = ui.mentorInput.value.trim();
-      if(!v) return;
-      appendMentor(v, 'user');
-      ui.mentorInput.value = '';
-      
-      if(appState.openaiApiKey) {
-        appState.points = Math.max(0, appState.points - 20);
-        postMentorMessage('Bantuan AI digunakan (-20 poin).', 'ai');
-        updateStats();
-        // Panggil API OpenAI di sini
-      } else {
-        postMentorMessage('Maaf, AI sedang dalam pengembangan.', 'ai');
-      }
-    });
+    ui.sendMentorBtn.addEventListener('click', sendMentorMessage);
 }
 
 // --- Mulai Aplikasi ---
