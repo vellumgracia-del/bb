@@ -1,188 +1,270 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BARBAR — Platform Belajar Masa Depan</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Tautan ke file CSS eksternal Anda -->
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARBAR - Belajar Bareng (Multi-File)</title>
+    
+    <!-- 1. KODE PERBAIKAN KRUSIAL: Memuat Supabase DULU sebelum script.js -->
+    <!-- Supabase JS Library harus dimuat dari CDN agar 'window.supabase' tersedia -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 2. Memuat File CSS yang telah dipisah -->
+    <link rel="stylesheet" href="style.css">
 
+    <!-- Tailwind CSS (Opsional, tapi ini diasumsikan ada di environment) -->
+    <!-- Jika environment Anda tidak otomatis menyediakan Tailwind, tambahkan di sini: -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
 </head>
 <body>
-  
-  <!-- 1. Landing Screen / Splash Screen -->
-  <div id="splashScreen" class="splash-screen">
-    <div class="splash-logo">
-      <svg class="header-logo" width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="https://res.cloudinary.com/dgzufaone/image/upload/v1761116986/1000087563_barbar_rghyo1.svg"><path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="#7F5AF0" fill-opacity="0.5"></path><path d="M20 70V30H55C66.0457 30 75 38.9543 75 50C75 61.0457 66.0457 70 55 70H20Z" fill="#7F5AF0"></path></svg>
-      <h1>BARBAR</h1>
-    </div>
-  </div>
 
-  <div id="notification" class="notification"></div>
-  <div class="overlay" id="completionOverlay"></div>
-
-  <header class="app-header">
-    <div class="header-content">
-      <div class="header-left">
-        <button id="hamburgerBtn" class="hamburger-btn">
-          <span></span><span></span><span></span>
-        </button>
-        <div class="header-title-group">
-          <svg class="header-logo" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="https://res.cloudinary.com/dgzufaone/image/upload/v1761116986/1000087563_barbar_rghyo1.svg"><path d="M20 80V20L60 20C76.5685 20 90 33.4315 90 50C90 66.5685 76.5685 80 60 80H20Z" fill="#7F5AF0" fill-opacity="0.5"></path><path d="M20 70V30H55C66.0457 30 75 38.9543 75 50C75 61.0457 66.0457 70 55 70H20Z" fill="#7F5AF0"></path></svg>
-          <h1>BARBAR</h1>
+    <!-- Splash Screen (Poin di mana aplikasi Anda stuck) -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z" fill="#7F5AF0" opacity="0.1"/>
+                <path d="M12 8L16 16H8L12 8Z" fill="#7F5AF0"/>
+                <path d="M12 8L16 16H8L12 8ZM12 8V12" stroke="#7F5AF0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 16L14 12L10 12L12 16Z" fill="#2CB67D"/>
+            </svg>
+            <h1 class="text-white">BARBAR</h1>
         </div>
-      </div>
     </div>
-  </header>
 
-  <!-- 4. Sidebar dengan Menu Baru -->
-  <nav id="sidebar" class="sidebar-nav">
-    <div id="welcomeUser" class="welcome-user" style="display: none;">
-      Halo, <strong id="userNameDisplay"></strong>!
+    <!-- Sidebar Navigasi -->
+    <div id="sidebar" class="sidebar-nav">
+        <p id="welcomeUser" class="welcome-user" style="display:none;">Selamat datang, <strong id="userNameDisplay"></strong>!</p>
+        <a href="#" class="nav-link active" data-page="homePage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Beranda
+        </a>
+        <a href="#" class="nav-link" data-page="subjectSelectionPage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4.5"/><rect width="18" height="4" x="3" y="5" rx="2"/><path d="M12 13v9"/></svg>
+            Pilih Materi
+        </a>
+        <a href="#" class="nav-link" data-page="mentorPage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V11a3 3 0 0 0-3-3Z"/><path d="M18 8h-3a3 3 0 0 1-3-3V2"/></svg>
+            AI Mentor
+        </a>
+        <a href="#" class="nav-link" data-page="leaderboardPage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/><line x1="12" x2="12" y1="13" y2="19"/><line x1="8" x2="8" y1="16" y2="19"/><line x1="16" x2="16" y1="10" y2="19"/></svg>
+            Papan Peringkat
+        </a>
+        <a href="#" class="nav-link" data-page="feedbackPage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z"/><path d="M12 16V12"/><path d="M12 8h.01"/></svg>
+            Beri Penilaian
+        </a>
+        <a id="fiturTambahanBtn" href="#" class="nav-link" data-page="extraFeature" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16s2-4 0-6"/><path d="M12 8v0"/></svg>
+            Fitur Tambahan
+        </a>
     </div>
-    <a href="#home" class="nav-link" data-page="homePage">🏠 Beranda</a>
-    <a href="#belajar" class="nav-link" data-page="subjectSelectionPage">📚 Mulai Belajar</a>
-    <a href="#mentor" class="nav-link" data-page="aiMentorPage">🤖 AI Mentor</a>
-    <a href="https://udinndinn49-debug.github.io/contoh/" target="_blank" class="nav-link">💬 Forum Diskusi</a>
-    <a href="#feedback" class="nav-link" data-page="feedbackPage">⭐ Beri Penilaian</a>
-    <a href="#fitur" id="fiturTambahanBtn" class="nav-link">✨ Fitur Tambahan</a>
-  </nav>
-  
-  <!-- Overlay untuk menutup sidebar (Poin 2) -->
-  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-  <div id="pageContainer" class="page-container">
-    <div id="landingPage" class="page active">
-      <div class="landing-content">
-        <div class="landing-text">
-          <h2>Selamat Datang di <span class="highlight">BARBAR</span></h2>
-          <p>Platform microlearning revolusioner yang membantumu menguasai materi sulit hanya dalam 5 menit. Siap naik level?</p>
-          <div class="landing-input-group">
-            <input id="userNameInput" type="text" placeholder="Ketik nama Anda untuk memulai..." />
-            <button id="startAppBtn" class="btn accent-btn animated-btn"><span>Mulai Petualangan</span></button>
-          </div>
+    <!-- Header Aplikasi -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <button id="hamburgerBtn" class="hamburger-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="header-title-group">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8L16 16H8L12 8Z" fill="#7F5AF0"/>
+                        <path d="M12 16L14 12L10 12L12 16Z" fill="#2CB67D"/>
+                    </svg>
+                    <h1>BARBAR</h1>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-sm text-gray-400">Poin:</span>
+                <strong id="totalPoints" class="text-lg text-accent-secondary">0</strong>
+            </div>
         </div>
-      </div>
-    </div>
+    </header>
 
-    <div id="homePage" class="page">
-      <div class="home-hero">
-        <h3>Visi & Misi Kami</h3>
-        <p>Mendemokratisasi pendidikan berkualitas tinggi melalui teknologi, menjadikannya cepat, mudah diakses, dan menyenangkan bagi setiap pelajar di Indonesia.</p>
-      </div>
-      <div class="founder-section">
-        <h3>Tim Pendiri</h3>
-        <div class="founder-grid">
-          <div class="founder-card"><div class="founder-photo"><img src="https://res.cloudinary.com/dgzufaone/image/upload/v1761118376/Gemini_Generated_Image_jxmjhwjxmjhwjxmj_ixh88x.jpg" alt="Foto Zulfa Fahmiy"></div><div class="founder-shape"></div><h4>Zulfa Fahmiy</h4><p>Chief Executive Officer</p></div>
-          <div class="founder-card"><div class="founder-photo"><img src="https://res.cloudinary.com/dgzufaone/image/upload/v1761119341/1000087641_pra_re9gau.png" alt="Foto Prabu Revolusi"></div><div class="founder-shape"></div><h4>Prabu Revolusi</h4><p>Chief Technology Officer</p></div>
-        </div>
-      </div>
-    </div>
+    <!-- Konten Halaman -->
+    <main id="pageContainer" class="page-container">
+
+        <!-- Halaman 0: Landing Page -->
+        <section id="landingPage" class="page active">
+            <div class="landing-content">
+                <div class="landing-text">
+                    <h2>Mulai Belajar Bareng (BARBAR) dengan <span class="highlight">Gaya Eksotis</span></h2>
+                    <p class="page-subtitle">Platform belajar interaktif yang menggabungkan video ringkas, kuis, dan AI mentor. Masukkan nama panggilan Anda untuk memulai.</p>
+                    <div class="landing-input-group">
+                        <input id="userNameInput" type="text" placeholder="Masukkan Nama Panggilan Anda..." maxlength="15" value="Pemain Anonim">
+                        <button id="startAppBtn" class="accent-btn animated-btn">
+                            <span>Mulai Belajar & Kuis!</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Halaman 1: Beranda -->
+        <section id="homePage" class="page">
+            <div class="home-hero">
+                <h3>Selamat Datang di Dunia Belajar Interaktif!</h3>
+                <p>Kumpulkan poin, selesaikan topik, dan tantang diri Anda di papan peringkat. Siap belajar?</p>
+                <div class="founder-section">
+                    <h3>Filosofi Kami</h3>
+                    <p class="text-sm text-text-secondary mb-8">Kami percaya belajar harus ringkas, menyenangkan, dan berorientasi pada hasil nyata.</p>
+                    <a href="#" class="accent-btn animated-btn" data-page="subjectSelectionPage" onclick="document.querySelector('#subjectSelectionPage').click()">
+                        <span>Mulai Pilih Materi Sekarang</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Halaman 2: Pemilihan Subjek -->
+        <section id="subjectSelectionPage" class="page">
+            <h2>Pilih Mata Pelajaran</h2>
+            <p class="page-subtitle">Pilih subjek yang ingin Anda pelajari hari ini. Setiap subjek memiliki topik video dan kuisnya sendiri.</p>
+            <div id="subjectGrid" class="selection-grid">
+                <!-- Konten Subjek akan dimuat oleh JS -->
+            </div>
+        </section>
+
+        <!-- Halaman 3: Pemilihan Topik -->
+        <section id="topicSelectionPage" class="page">
+            <h2 id="topicSelectionTitle">Pilih Topik</h2>
+            <p class="page-subtitle">Tonton video ringkas, dan selesaikan kuis untuk mendapatkan poin dan menandai topik sebagai selesai (✅).</p>
+            <div id="topicGrid" class="selection-grid">
+                <!-- Konten Topik akan dimuat oleh JS -->
+            </div>
+        </section>
+
+        <!-- Halaman 4: Aplikasi Belajar Inti -->
+        <section id="appPage" class="page">
+            <div class="container-app">
+                <!-- Kiri: Video & Kuis -->
+                <div class="left">
+                    <div class="card">
+                        <h2 id="topicTitle" class="mb-4">Loading...</h2>
+                        <!-- Video Container -->
+                        <div class="video-container">
+                            <video id="topicVideo" controls autoplay muted poster="https://placehold.co/1280x720/1B1B2B/7F5AF0?text=VIDEO+BARBAR">
+                                <source src="#" type="video/mp4">
+                                Browser Anda tidak mendukung tag video.
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- Area Kuis -->
+                    <div id="quizArea" class="card" style="display:none;">
+                        <div class="card-header">Kuis Kilat (<span id="remainingQ">0</span> Soal Tersisa)</div>
+                        <div id="questionWrap">
+                            <p class="text-text-secondary">Tekan "Mulai Sesi" untuk memulai kuis!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kanan: Sidebar Sesi -->
+                <div class="sidebar">
+                    <!-- Timer & Kontrol -->
+                    <div class="card">
+                        <div class="card-header">Sesi Belajar</div>
+                        <p class="text-4xl font-bold text-accent mb-4 text-center" id="sessTimer">05:00</p>
+                        <button id="startSession" class="accent-btn animated-btn mb-3">
+                            <span>Mulai Sesi</span>
+                        </button>
+                        <button id="endSession" class="btn" style="display:none;">
+                            Akhiri Sesi
+                        </button>
+                    </div>
+
+                    <!-- Statistik Belajar -->
+                    <div class="card">
+                        <div class="card-header">Progres Topik</div>
+                        <p class="text-text-secondary mb-2">Progres penyelesaian topik saat ini:</p>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                            <div id="progBar" class="bg-accent h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Navigasi Cepat -->
+                    <div class="card">
+                        <div class="card-header">Navigasi</div>
+                        <button id="backToSubjectsBtn" class="btn w-full">Kembali ke Daftar Topik</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Halaman 5: AI Mentor -->
+        <section id="mentorPage" class="page">
+            <h2>AI Mentor Chat</h2>
+            <p class="page-subtitle">Tanya apapun tentang topik pelajaran Anda. Setiap pertanyaan mengurangi 20 poin. (Saat ini dalam Maintenance / Mode Pengembangan)</p>
+            <div class="mentor-page-container">
+                <div id="mentorLog" class="mentor-log-full">
+                    <div class="msg ai">Halo! Saya adalah AI Mentor Anda. Tanyakan tentang materi apa pun yang sulit Anda pahami.</div>
+                    <div class="msg user">Saya mau bertanya tentang sistem sirkulasi darah.</div>
+                    <div class="msg ai">Silakan ajukan pertanyaan spesifik Anda. Ingat, setiap pertanyaan yang dikirim akan mengurangi 20 poin Anda.</div>
+                </div>
+                <div class="mentor-input-full">
+                    <input id="mentorInput" type="text" placeholder="Ketik pertanyaan Anda..." disabled>
+                    <button id="sendMentorBtn" class="accent-btn animated-btn" disabled>
+                        <span>Kirim</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Halaman 6: Papan Peringkat -->
+        <section id="leaderboardPage" class="page">
+            <h2>Papan Peringkat Pelajar</h2>
+            <p class="page-subtitle">Lihat siapa yang paling rajin belajar dan mengumpulkan poin terbanyak!</p>
+            <div class="container-app mt-6">
+                <div class="card left">
+                    <div class="card-header">Statistik Saya</div>
+                    <p class="text-text-secondary">Topik Selesai: <strong id="doneTopics" class="text-accent-secondary">0</strong></p>
+                    <p class="text-text-secondary">Total Poin: <strong id="totalPoints" class="text-accent-secondary">0</strong></p>
+                </div>
+                <div class="card sidebar scrollable-content">
+                    <div class="card-header">25 Pelajar Terbaik</div>
+                    <div id="leaderboard">
+                        <p class="small">Memuat data papan peringkat...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Halaman 7: Feedback/Penilaian -->
+        <section id="feedbackPage" class="page">
+            <h2>Beri Kami Penilaian</h2>
+            <p class="page-subtitle">Bantu kami menjadi lebih baik! Beri tahu kami pendapat Anda tentang aplikasi BARBAR.</p>
+            <div class="feedback-container card">
+                <div class="feedback-wrapper">
+                    <div class="card-header">Seberapa Puas Anda?</div>
+                    <!-- Simbol bintang Unicode: ★ (Bintang Penuh) dan ☆ (Bintang Kosong) -->
+                    <div id="starRating" class="star-rating">
+                        <span class="star" data-value="1">☆</span>
+                        <span class="star" data-value="2">☆</span>
+                        <span class="star" data-value="3">☆</span>
+                        <span class="star" data-value="4">☆</span>
+                        <span class="star" data-value="5">☆</span>
+                    </div>
+                    <p id="feedbackThanks" class="text-accent-secondary mt-3" style="display:none;">Terima kasih atas penilaian Anda!</p>
+                </div>
+                
+                <textarea id="feedbackText" rows="4" placeholder="Ketik saran, kritik, atau pengalaman Anda di sini..."></textarea>
+                
+                <button id="submitFeedback" class="accent-btn animated-btn">
+                    <span>Kirim Feedback</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notifikasi Toast -->
+    <div id="notification" class="notification"></div>
     
-    <div id="subjectSelectionPage" class="page">
-        <h2>Pilih Mata Pelajaran</h2>
-        <p class="page-subtitle">Pilih salah satu mata pelajaran untuk melihat topik yang tersedia.</p>
-        <div id="subjectGrid" class="selection-grid"></div>
-    </div>
-
-    <div id="topicSelectionPage" class="page">
-        <button id="backToSubjectsBtn" class="btn back-btn">← Kembali ke Mata Pelajaran</button>
-        <h2 id="topicSelectionTitle">Pilih Topik</h2>
-        <p class="page-subtitle">Topik dirancang untuk dipelajari dalam 5 menit.</p>
-        <div id="topicGrid" class="selection-grid"></div>
-    </div>
-
-    <div id="appPage" class="page">
-      <div class="container-app">
-        <main class="left">
-          <!-- 2. Perbaikan Kolom Video -->
-          <div class="card video-card">
-             <div class="video-container">
-                <video id="topicVideo" controls preload="metadata"><source src="" type="video/mp4"></video>
-            </div>
-            <div class="video-info-wrapper">
-              <div class="topic-details">
-                <h3 id="topicTitle">-</h3>
-                <p class="small">Timer sesi: <span class="timer" id="sessTimer">05:00</span></p>
-              </div>
-              <div class="topic-controls">
-                  <div class="progress-line"><i id="progBar"></i></div>
-                  <div class="controls">
-                    <button class="btn" id="startSession">Mulai Sesi</button>
-                  </div>
-              </div>
-            </div>
-          </div>
-          <!-- 2. Perbaikan Tampilan Kuis dengan Animasi -->
-          <div class="card quiz" id="quizArea" style="display:none">
-            <div id="quizHeader">
-              <h4>Kuis Singkat</h4>
-              <p class="small">Soal tersisa: <span id="remainingQ">0</span></p>
-            </div>
-            <div id="questionWrap"></div>
-            <div class="quiz-controls">
-              <button class="btn" id="endSession" style="display:none">Akhiri Sesi</button>
-            </div>
-          </div>
-        </main>
-        <aside class="sidebar">
-          <div class="card">
-            <div class="card-header">Statistik</div>
-            <div class="stats-grid">
-              <div><p class="small">Topik Selesai</p><strong id="doneTopics">0</strong></div>
-              <div><p class="small">Total Poin</p><strong id="totalPoints">0</strong></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">🏆 Papan Peringkat</div>
-            <div id="leaderboard" class="scrollable-content"></div>
-          </div>
-        </aside>
-      </div>
-    </div>
-    
-    <!-- 5. Halaman AI Mentor Terpisah -->
-    <div id="aiMentorPage" class="page">
-        <h2>AI Mentor</h2>
-        <p class="page-subtitle">Punya pertanyaan? Tanyakan pada mentor AI kami. Layanan saat ini **Gratis** karena sedang *maintenance*.</p>
-        <div class="mentor-page-container card">
-            <div id="mentorLog" class="mentor-log-full">
-              <div class="msg ai">Halo! Saya adalah mentor AI Anda. Tanyakan apa saja terkait pelajaran hari ini. (Saat ini mode maintenance, poin tidak dikurangi).</div>
-            </div>
-            <div class="mentor-input-full">
-              <input id="mentorInput" type="text" placeholder="Tanya Mentor..." />
-              <button class="btn accent-btn" id="sendMentor">Kirim</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="feedbackPage" class="page">
-      <div class="feedback-container">
-        <div class="card feedback-wrapper">
-          <h3>Beri Penilaian Anda</h3>
-          <p class="small">Bagaimana pengalaman belajar Anda hari ini?</p>
-          <div class="star-rating" id="starRating">
-              <!-- Bintang kini menggunakan simbol Unicode yang akan diubah oleh JS -->
-              <span class="star" data-value="1">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="5">☆</span>
-          </div>
-          <textarea id="feedbackText" placeholder="Ketik saran atau masukan Anda di sini..."></textarea>
-          <button id="submitFeedback" class="btn accent-btn animated-btn"><span>Kirim Feedback</span></button>
-          <p id="feedbackThanks" class="small" style="display:none; color: var(--green); font-weight: 600; margin-top: 16px;">Terima kasih atas masukan Anda!</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <!-- Tautan ke file JavaScript eksternal Anda -->
-  <script src="script.js"></script>
+    <!-- 3. Memuat File Logika/JavaScript yang telah dipisah (HARUS SETELAH SUPABASE) -->
+    <script src="script.js"></script>
 </body>
 </html>
 
