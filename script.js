@@ -583,33 +583,11 @@ function postMentorMessage(text, who='ai'){
 }
 
 // Logika pengiriman pesan mentor (Poin 3)
-function sendMentorMessage() {
-    const v = ui.mentorInput.value.trim();
-    if(!v) return;
-    postMentorMessage(v, 'user');
-    ui.mentorInput.value = '';
-    
-    if(IS_AI_MAINTENANCE) {
-        // Mode maintenance aktif: Poin tidak dikurangi
-        postMentorMessage('Maaf, Mentor AI sedang dalam mode pemeliharaan (maintenance). Pertanyaan Anda telah diterima dan akan dijawab segera setelah sistem kembali normal. Poin Anda TIDAK dikurangi.', 'ai');
-    } else {
-        // Logika normal: Poin dikurangi
-        if(appState.points >= 20) {
-            appState.points -= 20;
-            showNotification('Bantuan AI digunakan (-20 poin).');
-            updateStats();
-            // *LOGIKA PANGGIL API AI DI SINI*
-            postMentorMessage('Maaf, koneksi ke AI sedang dalam pengembangan. Poin Anda telah dikembalikan untuk sementara.', 'ai');
-            // Logika untuk mengembalikan poin jika API belum siap (jika tidak terintegrasi sungguhan)
-            setTimeout(() => {
-                appState.points += 20;
-                updateStats();
-            }, 1000);
-        } else {
-            postMentorMessage('Maaf, poin Anda tidak cukup (minimal 20 poin) untuk menggunakan AI Mentor.', 'ai');
-        }
-    // Hapus fungsi sendMentorMessage yang lama
-}
+/* * FUNGSI DUPLIKAT DI BAWAH INI TELAH DIHAPUS.
+ * Fungsi 'async function sendMentorMessage()' yang baru di atas
+ * (baris 433) sekarang adalah satu-satunya yang digunakan.
+ */
+// function sendMentorMessage() { ... } // <-- SELURUH BLOK INI DIHAPUS
 
 // --- LOGIKA FEEDBACK (NEW) ---
 
@@ -768,9 +746,12 @@ function setupEventListeners() {
     ui.sendMentorBtn.addEventListener('click', sendMentorMessage);
 
     // Listener baru untuk fitur Gemini
-    ui.getFunFactBtn.addEventListener('click', fetchFunFact);
-    ui.explainAnswerBtn.addEventListener('click', explainQuizAnswer);
+    // PERBAIKAN: Tambahkan null check agar tidak crash jika HTML belum di-update
+    if (ui.getFunFactBtn) {
+        ui.getFunFactBtn.addEventListener('click', fetchFunFact);
+    }
+    if (ui.explainAnswerBtn) {
+        ui.explainAnswerBtn.addEventListener('click', explainQuizAnswer);
+    }
 }
 
-// --- Mulai Aplikasi ---
-init();
