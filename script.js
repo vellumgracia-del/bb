@@ -5,18 +5,27 @@
 
 // --- PENTING: KONFIGURASI GEMINI API ---
 // Silakan masukkan Kunci API Gemini Anda di sini agar fitur AI berfungsi.
-const GEMINI_API_KEY = ""; // <-- ISI KUNCI API ANDA DI SINI
+const GEMINI_API_KEY = "AIzaSyDqyBAFgMhWses3Fo5e4U1e5DTsJNWOv50"; // <-- ISI KUNCI API ANDA DI SINI
 
 // --- KONFIGURASI SUPABASE ---
 const SUPABASE_URL = 'https://yrvpwsgusqfojattmlvp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlydnB3c2d1c3Fmb2phdHRtbHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE3MzY2MTksImV4cCI6MjAzNzMxMjYxOX0.IH1e-k-p7-eFfTf3_p18-pgqOFp-s-O3eIY-O1Ie-N0';
-let supabase = null;
+
+// PERBAIKAN KRITIS: Mengganti 'supabase' lokal dengan 'supabaseClient' dan menggunakan global 'window.supabase'
+// Kesalahan sebelumnya: mencoba memanggil createClient() pada variabel 'supabase' yang masih 'null', menyebabkan crash sebelum logo disembunyikan.
+let supabaseClient = null; 
 
 try {
-  supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  console.log("Supabase client initialized.");
+  // Akses objek Supabase global yang diekspos oleh skrip CDN
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("Supabase client initialized.");
+  } else {
+    // Tidak menghentikan inisialisasi, hanya mencatat kesalahan.
+    throw new Error("Global Supabase object or createClient function not found."); 
+  }
 } catch(e) {
-  console.error("Supabase client could not be initialized.", e);
+  console.error("Supabase client could not be initialized (past the logo fix). ERROR:", e.message);
 }
 
 // --- DATA TOPIK DAN SOAL ---
@@ -132,8 +141,8 @@ function loadState(){
     appState.currentRating = savedState.currentRating || 0;
     
     if(appState.userName){
-      ui.userNameDisplay.textContent = appState.userName;
-      ui.welcomeUser.style.display = 'block';
+      if (ui.userNameDisplay) ui.userNameDisplay.textContent = appState.userName;
+      if (ui.welcomeUser) ui.welcomeUser.style.display = 'block';
     }
   }
 }
@@ -175,11 +184,11 @@ function initUI() {
     topicTitle: document.getElementById('topicTitle'),
     sessTimer: document.getElementById('sessTimer'),
     progBar: document.getElementById('progBar'),
-    startSessionBtn: document.getElementById('startSessionBtn'),
+    startSessionBtn: document.getElementById('startSession'), 
     quizArea: document.getElementById('quizArea'),
     remainingQ: document.getElementById('remainingQ'),
     questionWrap: document.getElementById('questionWrap'),
-    endSessionBtn: document.getElementById('endSessionBtn'),
+    endSessionBtn: document.getElementById('endSession'), 
     
     // Sidebar Kanan
     doneTopics: document.getElementById('doneTopics'),
@@ -217,22 +226,27 @@ function initUI() {
 // --- MANAJEMEN HALAMAN & NAVIGASI ---
 function showPage(pageId, highlightNav = true) {
   document.querySelectorAll('.page.active').forEach(p => p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  appState.currentPage = pageId;
+  
+  const targetPage = document.getElementById(pageId);
+  if (targetPage) {
+    targetPage.classList.add('active');
+    appState.currentPage = pageId;
 
-  if (highlightNav) {
-    ui.navLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.page === pageId);
-    });
+    if (highlightNav && ui.navLinks) {
+      ui.navLinks.forEach(link => {
+        link.classList.toggle('active', link.dataset.page === pageId);
+      });
+    }
   }
 }
 
 function closeSidebar() {
-  ui.sidebar.classList.remove('open');
-  ui.sidebarOverlay.style.display = 'none';
+  if (ui.sidebar) ui.sidebar.classList.remove('open');
+  if (ui.sidebarOverlay) ui.sidebarOverlay.style.display = 'none';
 }
 
 function showNotification(message, duration = 2000) { // Durasi default 2 detik
+    if (!ui.notification) return;
     ui.notification.textContent = message;
     ui.notification.classList.add('show');
     
@@ -245,22 +259,32 @@ function showNotification(message, duration = 2000) { // Durasi default 2 detik
 function init() {
   console.log("App init...");
   initUI();
+  
+  // Guard untuk mencegah crash jika elemen utama tidak ada
+  if (!ui.pageContainer || !ui.splashScreen) {
+      console.error("Kesalahan Fatal: Elemen UI utama tidak ditemukan.");
+      return; 
+  }
+  
+  // Panggil setup functions
   setupEventListeners();
   setupStarRating();
   
+  // Panggil fungsi yang mungkin menyebabkan error sebelumnya
   loadState();
   updateStats();
   renderSubjects();
-  renderLeaderboard();
+  // renderLeaderboard() adalah async dan jika gagal tidak akan memblokir init().
+  renderLeaderboard(); 
   
-  // Sembunyikan splash screen
+  // Sembunyikan splash screen (Pastikan ini tetap dipanggil)
   setTimeout(() => {
     if (ui.splashScreen) {
       ui.splashScreen.classList.add('hidden');
     }
   }, 1500); // 1.5 detik
   
-  // Jika user sudah ada, langsung ke beranda
+  // Navigasi ke halaman yang benar
   if (appState.userName) {
     showPage('homePage');
   } else {
@@ -272,6 +296,7 @@ function init() {
 
 // --- PEMBUATAN TAMPILAN (RENDER) ---
 function renderSubjects() {
+  if (!ui.subjectGrid) return;
   ui.subjectGrid.innerHTML = '';
   appState.subjects.forEach(s => {
     const card = document.createElement('a');
@@ -290,8 +315,8 @@ function renderTopics(subjectId) {
   const subject = appState.subjects.find(s => s.id === subjectId);
   if (!subject) return;
   
-  ui.topicGrid.innerHTML = '';
-  ui.topicSelectionTitle.textContent = `Topik: ${subject.title}`;
+  if (ui.topicGrid) ui.topicGrid.innerHTML = '';
+  if (ui.topicSelectionTitle) ui.topicSelectionTitle.textContent = `Topik: ${subject.title}`;
   
   subject.topics.forEach(t => {
     const card = document.createElement('a');
@@ -306,13 +331,13 @@ function renderTopics(subjectId) {
       e.preventDefault();
       selectTopic(subject.id, t.id);
     };
-    ui.topicGrid.appendChild(card);
+    if (ui.topicGrid) ui.topicGrid.appendChild(card);
   });
 }
 
 function updateStats() {
-  ui.doneTopics.textContent = Object.keys(appState.completed).length;
-  ui.totalPoints.textContent = appState.points;
+  if (ui.doneTopics) ui.doneTopics.textContent = Object.keys(appState.completed).length;
+  if (ui.totalPoints) ui.totalPoints.textContent = appState.points;
 }
 
 // --- LOGIKA PEMILIHAN ---
@@ -327,16 +352,19 @@ function selectTopic(subjectId, topicId) {
   const subject = appState.subjects.find(s => s.id === subjectId);
   appState.currentTopic = subject.topics.find(t => t.id === topicId);
   
-  ui.topicTitle.textContent = appState.currentTopic.title;
-  ui.topicVideo.querySelector('source').src = appState.currentTopic.video;
-  ui.topicVideo.load();
+  if (ui.topicTitle) ui.topicTitle.textContent = appState.currentTopic.title;
+  if (ui.topicVideo) {
+    const source = ui.topicVideo.querySelector('source');
+    if (source) source.src = appState.currentTopic.video;
+    ui.topicVideo.load();
+  }
   
   // Reset UI Sesi
-  ui.quizArea.style.display = 'none';
-  ui.startSessionBtn.style.display = 'block';
-  ui.endSessionBtn.style.display = 'none';
-  ui.progBar.style.width = '0%';
-  ui.sessTimer.textContent = '05:00';
+  if (ui.quizArea) ui.quizArea.style.display = 'none';
+  if (ui.startSessionBtn) ui.startSessionBtn.style.display = 'block';
+  if (ui.endSessionBtn) ui.endSessionBtn.style.display = 'none';
+  if (ui.progBar) ui.progBar.style.width = '0%';
+  if (ui.sessTimer) ui.sessTimer.textContent = '05:00';
   
   showPage('appPage', false);
 }
@@ -349,10 +377,10 @@ function startSession() {
   
   appState.sessionActive = true;
   appState.timerVal = 300; // 5 menit
-  ui.sessTimer.textContent = '05:00';
-  ui.quizArea.style.display = 'block';
-  ui.startSessionBtn.style.display = 'none';
-  ui.endSessionBtn.style.display = 'block';
+  if (ui.sessTimer) ui.sessTimer.textContent = '05:00';
+  if (ui.quizArea) ui.quizArea.style.display = 'block';
+  if (ui.startSessionBtn) ui.startSessionBtn.style.display = 'none';
+  if (ui.endSessionBtn) ui.endSessionBtn.style.display = 'block';
   
   appState.timer = setInterval(runTimer, 1000);
   
@@ -368,7 +396,7 @@ function runTimer() {
   appState.timerVal--;
   const mins = Math.floor(appState.timerVal / 60).toString().padStart(2, '0');
   const secs = (appState.timerVal % 60).toString().padStart(2, '0');
-  ui.sessTimer.textContent = `${mins}:${secs}`;
+  if (ui.sessTimer) ui.sessTimer.textContent = `${mins}:${secs}`;
   
   if (appState.timerVal <= 0) {
     endSession(true); // Sesi berakhir karena waktu habis
@@ -385,12 +413,12 @@ function endSession(timeUp = false) {
     showNotification("Sesi belajar diakhiri.", 3000);
   }
   
-  ui.quizArea.style.display = 'none';
-  ui.startSessionBtn.style.display = 'block';
-  ui.endSessionBtn.style.display = 'none';
+  if (ui.quizArea) ui.quizArea.style.display = 'none';
+  if (ui.startSessionBtn) ui.startSessionBtn.style.display = 'block';
+  if (ui.endSessionBtn) ui.endSessionBtn.style.display = 'none';
   
   // Cek apakah topik selesai
-  if (appState.quizQueue.length === 0) {
+  if (appState.quizQueue.length === 0 && currentTopic()) {
     if (!appState.completed[currentTopic().id]) {
       appState.completed[currentTopic().id] = true;
       appState.points += 50; // Bonus 50 poin selesai topik
@@ -411,6 +439,8 @@ function endSession(timeUp = false) {
 }
 
 function renderQuiz(){
+  if (!ui.questionWrap) return;
+  
   ui.questionWrap.innerHTML = '';
   // Sembunyikan tombol penjelasan saat soal baru muncul
   if (ui.explainAnswerBtn) ui.explainAnswerBtn.style.display = 'none';
@@ -418,12 +448,12 @@ function renderQuiz(){
   
   if(!appState.quizQueue || appState.quizQueue.length === 0){
     ui.questionWrap.innerHTML = '<p class="quiz-complete">🎉 Kuis Selesai! Kerja bagus!</p>';
-    ui.endSessionBtn.style.display = 'block';
-    ui.remainingQ.textContent = 0;
+    if (ui.endSessionBtn) ui.endSessionBtn.style.display = 'block';
+    if (ui.remainingQ) ui.remainingQ.textContent = 0;
     return;
   }
   
-  ui.remainingQ.textContent = appState.quizQueue.length;
+  if (ui.remainingQ) ui.remainingQ.textContent = appState.quizQueue.length;
   
   const q = appState.quizQueue[0];
   const questionEl = document.createElement('div');
@@ -446,14 +476,17 @@ function renderQuiz(){
 }
 
 function handleAnswer(question, selectedIndex, elNode){
+  if (!ui.questionWrap) return;
+
   // Matikan semua tombol
   ui.questionWrap.querySelectorAll('.option').forEach(btn => btn.disabled = true);
   
   const correct = selectedIndex === question.a;
   const correctAnswerNode = ui.questionWrap.querySelectorAll('.option')[question.a];
-  correctAnswerNode.classList.add('correct');
+  if (correctAnswerNode) correctAnswerNode.classList.add('correct');
   
-  const isAlreadyCompleted = appState.completed[currentTopic().id];
+  const currentTopicId = currentTopic() ? currentTopic().id : null;
+  const isAlreadyCompleted = currentTopicId ? appState.completed[currentTopicId] : false;
 
   if(correct){
     appState.points += 10;
@@ -478,8 +511,8 @@ function handleAnswer(question, selectedIndex, elNode){
       renderQuiz(); // Tampilkan pesan 'Kuis Selesai'
       
       // Otomatis cek penyelesaian jika kuis selesai
-      if (!isAlreadyCompleted) {
-        appState.completed[currentTopic().id] = true;
+      if (currentTopicId && !isAlreadyCompleted) {
+        appState.completed[currentTopicId] = true;
         appState.points += 50; // Bonus 50 poin
         showNotification("Selamat! Topik selesai! +50 Poin!", 4000);
         
@@ -498,6 +531,7 @@ function handleAnswer(question, selectedIndex, elNode){
 }
 
 function updateProgBar(){
+  if (!currentTopic() || !ui.progBar) return;
   const total = currentTopic().questions.length;
   const remaining = appState.quizQueue.length;
   const done = total - remaining;
@@ -515,10 +549,10 @@ function shuffleArray(array) {
 
 // --- LOGIKA DATABASE (SUPABASE) ---
 async function updateUserScore() {
-  if (!supabase || !appState.userName) return;
+  if (!supabaseClient || !appState.userName) return;
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('leaderboard')
       .upsert({ username: appState.userName, score: appState.points })
       .select();
@@ -619,6 +653,8 @@ async function callGemini(userPrompt, retries = 3, delay = 1000, systemPrompt = 
  * FITUR #1: Mengambil Fakta Menarik dari Gemini
  */
 async function fetchFunFact() {
+  if (!ui.getFunFactBtn || !ui.funFactText) return;
+  
   setButtonLoading(ui.getFunFactBtn, true);
   ui.funFactText.textContent = "Sedang mencari fakta menarik...";
   
@@ -638,6 +674,7 @@ async function explainQuizAnswer() {
     showNotification("Tidak ada pertanyaan untuk dijelaskan.", 3000);
     return;
   }
+  if (!ui.explainAnswerBtn) return;
 
   setButtonLoading(ui.explainAnswerBtn, true);
   const correctAnswerText = q.opts[q.a];
@@ -662,6 +699,8 @@ async function explainQuizAnswer() {
  * FITUR #3: Mengirim pesan ke AI Mentor (Gemini)
  */
 async function sendMentorMessage() {
+    if (!ui.mentorInput || !ui.sendMentorBtn || !ui.mentorLog) return;
+    
     const userPrompt = ui.mentorInput.value.trim();
     if(!userPrompt) return;
     
@@ -687,15 +726,15 @@ async function sendMentorMessage() {
 
 // --- PAPAN PERINGKAT & AI MENTOR ---
 async function renderLeaderboard() {
-  if (!supabase) {
-    ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Gagal terhubung ke database.</p>';
+  if (!supabaseClient) { 
+    if (ui.leaderboard) ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Gagal terhubung ke database.</p>';
     return;
   }
   
-  ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Memuat papan peringkat...</p>';
+  if (ui.leaderboard) ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Memuat papan peringkat...</p>';
   
   try {
-    let { data, error } = await supabase
+    let { data, error } = await supabaseClient
       .from('leaderboard')
       .select('username, score')
       .order('score', { ascending: false })
@@ -703,9 +742,9 @@ async function renderLeaderboard() {
       
     if (error) throw error;
     
-    ui.leaderboard.innerHTML = '';
+    if (ui.leaderboard) ui.leaderboard.innerHTML = '';
     if (data.length === 0) {
-      ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Belum ada data.</p>';
+      if (ui.leaderboard) ui.leaderboard.innerHTML = '<p class="small" style="color: var(--text-secondary);">Belum ada data.</p>';
       return;
     }
     
@@ -719,16 +758,17 @@ async function renderLeaderboard() {
         <strong>${entry.username}</strong>
         <span>${entry.score} Poin</span>
       `;
-      ui.leaderboard.appendChild(entryEl);
+      if (ui.leaderboard) ui.leaderboard.appendChild(entryEl);
     });
 
   } catch (error) {
     console.error("Error fetching leaderboard:", error.message);
-    ui.leaderboard.innerHTML = '<p class="small" style="color: var(--red);">Gagal memuat data.</p>';
+    if (ui.leaderboard) ui.leaderboard.innerHTML = '<p class="small" style="color: var(--red);">Gagal memuat data.</p>';
   }
 }
 
 function postMentorMessage(text, who='ai'){ 
+    if (!ui.mentorLog) return;
     const msg = document.createElement('div');
     msg.className = `msg ${who}`;
     msg.textContent = text;
@@ -742,7 +782,6 @@ function postMentorMessage(text, who='ai'){
 function setupStarRating() {
   // 1. Tambahkan event listener untuk setiap bintang
   
-  // PERBAIKAN: Tambahkan null check untuk container bintang
   if (ui.starRatingContainer) {
     ui.starRatingContainer.querySelectorAll('.star').forEach(star => {
       star.addEventListener('click', () => {
@@ -760,7 +799,6 @@ function setupStarRating() {
     });
   }
   
-  // PERBAIKAN: Tambahkan null check untuk tombol submit
   if (ui.submitFeedbackBtn) {
     ui.submitFeedbackBtn.addEventListener('click', submitFeedback);
   }
@@ -782,6 +820,8 @@ function updateStarVisuals(rating, hover = false) {
 }
 
 function submitFeedback() {
+  if (!ui.feedbackText || !ui.feedbackThanks || !ui.submitFeedbackBtn) return;
+  
   const feedbackText = ui.feedbackText.value;
   const rating = appState.currentRating;
   
@@ -808,59 +848,75 @@ function submitFeedback() {
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
-    // Toggle Sidebar
-    ui.hamburgerBtn.addEventListener('click', () => {
-        ui.sidebar.classList.toggle('open');
-        ui.sidebarOverlay.style.display = 'block';
-    });
-    // Tutup sidebar saat overlay diklik
-    ui.sidebarOverlay.addEventListener('click', closeSidebar); 
-    
-    ui.navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const page = link.dataset.page;
-            if (page) {
-                e.preventDefault();
-                showPage(page);
-                closeSidebar();
-            }
-            // Jika link eksternal (target="_blank"), biarkan default
+    // Pastikan tombol ada sebelum menambahkan listener
+    if (ui.hamburgerBtn) {
+        ui.hamburgerBtn.addEventListener('click', () => {
+            if (ui.sidebar) ui.sidebar.classList.toggle('open');
+            if (ui.sidebarOverlay) ui.sidebarOverlay.style.display = 'block';
         });
-    });
+    }
     
-    ui.startAppBtn.addEventListener('click', () => {
-        const name = ui.userNameInput.value.trim();
-        if(name.length < 2) {
-            showNotification("Nama terlalu pendek. Harap masukkan nama Anda.");
-            return;
-        }
-        appState.userName = name;
-        ui.userNameDisplay.textContent = name;
-        ui.welcomeUser.style.display = 'block';
-        saveState();
-        showPage('homePage');
-        updateUserScore(); // Buat/update user di DB saat pertama kali masuk
-    });
+    // Tutup sidebar saat overlay diklik
+    if (ui.sidebarOverlay) {
+        ui.sidebarOverlay.addEventListener('click', closeSidebar); 
+    }
     
-    ui.fiturTambahanBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showNotification("Fitur ini masih dalam pengembangan.", 3000);
-    });
+    if (ui.navLinks) {
+        ui.navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const page = link.dataset.page;
+                if (page) {
+                    e.preventDefault();
+                    showPage(page);
+                    closeSidebar();
+                }
+                // Jika link eksternal (target="_blank"), biarkan default
+            });
+        });
+    }
+    
+    if (ui.startAppBtn && ui.userNameInput) {
+        ui.startAppBtn.addEventListener('click', () => {
+            const name = ui.userNameInput.value.trim();
+            if(name.length < 2) {
+                showNotification("Nama terlalu pendek. Harap masukkan nama Anda.");
+                return;
+            }
+            appState.userName = name;
+            if (ui.userNameDisplay) ui.userNameDisplay.textContent = name;
+            if (ui.welcomeUser) ui.welcomeUser.style.display = 'block';
+            saveState();
+            showPage('homePage');
+            updateUserScore(); // Buat/update user di DB saat pertama kali masuk
+        });
+    }
+    
+    if (ui.fiturTambahanBtn) {
+        ui.fiturTambahanBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showNotification("Fitur ini masih dalam pengembangan.", 3000);
+        });
+    }
 
-    ui.backToSubjectsBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showPage('subjectSelectionPage');
-    });
+    if (ui.backToSubjectsBtn) {
+        ui.backToSubjectsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('subjectSelectionPage');
+        });
+    }
 
-    ui.startSessionBtn.addEventListener('click', startSession);
-    ui.endSessionBtn.addEventListener('click', () => endSession(false));
+    if (ui.startSessionBtn) ui.startSessionBtn.addEventListener('click', startSession);
+    if (ui.endSessionBtn) ui.endSessionBtn.addEventListener('click', () => endSession(false));
     
     // Listener AI Mentor
-    ui.mentorInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMentorMessage(); });
-    ui.sendMentorBtn.addEventListener('click', sendMentorMessage);
+    if (ui.mentorInput && ui.sendMentorBtn) {
+        ui.mentorInput.addEventListener('keydown', (e) => { 
+            if(e.key === 'Enter') sendMentorMessage(); 
+        });
+        ui.sendMentorBtn.addEventListener('click', sendMentorMessage);
+    }
 
     // Listener baru untuk fitur Gemini
-    // PERBAIKAN: Tambahkan null check agar tidak crash
     if (ui.getFunFactBtn) {
         ui.getFunFactBtn.addEventListener('click', fetchFunFact);
     }
