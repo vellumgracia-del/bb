@@ -1,7 +1,11 @@
 /* =========================
-  Aplikasi BelajarBareng V6
-  [FIXED] Fungsionalitas Star Rating & Supabase Feedback
+  Aplikasi BelajarBareng V7
+  Integrasi Gemini API
 ========================= */
+
+// --- PENTING: KONFIGURASI GEMINI API ---
+// Silakan masukkan Kunci API Gemini Anda di sini agar fitur AI berfungsi.
+const GEMINI_API_KEY = "AIzaSyDqyBAFgMhWses3Fo5e4U1e5DTsJNWOv50"; // <-- ISI KUNCI API ANDA DI SINI
 
 // --- KONFIGURASI SUPABASE ---
 const SUPABASE_URL = 'https://rgntufyuatlkikwuyrxx.supabase.co';
@@ -16,8 +20,8 @@ try {
   console.error("Supabase client could not be initialized.", e);
 }
 
-// Status AI Mentor (Poin 3)
-const IS_AI_MAINTENANCE = true; // Set ke true untuk menonaktifkan pengurangan poin
+// Hapus flag maintenance
+// const IS_AI_MAINTENANCE = true; // <-- Dihapus
 
 // --- DATA TOPIK DAN SOAL ---
 const SUBJECTS_DATA = {
@@ -101,7 +105,8 @@ const appState = {
   points: 0,
   completed: {},
   userName: '',
-  currentRating: 0, // NEW: State untuk menyimpan rating saat ini
+  currentRating: 0,
+  lastAnsweredQuestion: null, // NEW: Menyimpan soal terakhir
 };
 
 function loadState(){
@@ -160,6 +165,10 @@ const ui = {
     backToSubjectsBtn: document.getElementById('backToSubjectsBtn'),
     topicSelectionTitle: document.getElementById('topicSelectionTitle'),
     sidebarOverlay: document.getElementById('sidebarOverlay'),
+    // Elemen baru untuk fitur Gemini
+    getFunFactBtn: document.getElementById('getFunFactBtn'),
+    funFactText: document.getElementById('funFactText'),
+    explainAnswerBtn: document.getElementById('explainAnswerBtn'),
 };
 
 // --- MANAJEMEN HALAMAN & NAVIGASI ---
@@ -179,14 +188,14 @@ function closeSidebar() {
 }
 
 // Fungsi notifikasi diperbaiki (2000ms = 2 detik)
-function showNotification(message) {
+function showNotification(message, duration = 2000) { // Durasi default 2 detik
     ui.notification.textContent = message;
     ui.notification.classList.add('show');
     
-    // Hapus notifikasi setelah 2 detik (2000ms)
+    // Hapus notifikasi setelah 'duration'
     setTimeout(() => {
         ui.notification.classList.remove('show');
-    }, 2000); 
+    }, duration); 
 }
 
 // --- INISIALISASI APLIKASI ---
@@ -290,6 +299,10 @@ function startSession(){
 
 function renderQuiz(){
   ui.questionWrap.innerHTML = '';
+  // Sembunyikan tombol penjelasan saat soal baru muncul
+  ui.explainAnswerBtn.style.display = 'none';
+  appState.lastAnsweredQuestion = null;
+  
   if(!appState.quizQueue || appState.quizQueue.length === 0){
     ui.questionWrap.innerHTML = '<p class="small">Tidak ada soal tersisa.</p>';
     ui.remainingQ.textContent = 0;
@@ -328,6 +341,11 @@ function handleAnswer(question, selectedIndex, elNode){
     elNode.classList.add('wrong');
     appState.quizQueue.push(appState.quizQueue.shift()); // Kembalikan ke akhir antrian
   }
+
+  // Simpan soal dan tampilkan tombol 'Jelaskan Jawaban'
+  appState.lastAnsweredQuestion = question;
+  ui.explainAnswerBtn.style.display = 'block';
+  setButtonLoading(ui.explainAnswerBtn, false); // Pastikan tidak loading
   
   setTimeout(()=>{
     if(appState.quizQueue.length > 0){
@@ -338,61 +356,169 @@ function handleAnswer(question, selectedIndex, elNode){
       ui.endSessionBtn.style.display = 'block';
     }
     updateStats();
-  }, 1200);
-}
-
-function endSession(timedOut=false){
-  if(appState.timerHandle) clearInterval(appState.timerHandle);
-  
-  const t = currentTopic();
-  const isAlreadyCompleted = appState.completed[t.id];
-  
-  if (!isAlreadyCompleted) {
-      appState.points += 20; // Bonus
-      markCompleted(true);
-      showNotification(`Topik selesai! Bonus 20 poin untuk topik "${t.title}".`);
-      if(window.confetti) confetti();
-  } else {
-      showNotification(`Anda menyelesaikan topik "${t.title}" lagi! Kerja bagus!`);
-  }
-  
-  ui.sessTimer.textContent = formatTime(appState.sessionSeconds);
-  ui.startSessionBtn.textContent = 'Mulai Sesi';
-  ui.startSessionBtn.disabled = false;
-  
-  // Sembunyikan kuis setelah 3 detik
-  setTimeout(() => {
-    ui.quizArea.style.display = 'none';
-  }, 3000);
-  
-  updateStats();
-}
-
-function markCompleted(success){
-  if(success) appState.completed[currentTopic().id] = true;
-  updateStats();
-  renderTopicSelection(appState.currentSubject); // Refresh list topik
-}
-
-function shuffleArray(arr){
-  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr;
-}
-function currentTopic(){ return appState.subjects[appState.currentSubject][appState.currentTopicIndex]; }
-
-function updateProgBar(){
-  const topic = currentTopic();
-  if (!topic) return;
-  const done = appState.completed[topic.id] ? 100 : 0;
-  ui.progBar.style.width = done + '%';
-}
-
-function updateStats(){
-  saveState();
-  ui.doneTopicsEl.textContent = Object.values(appState.completed).filter(v=>v).length;
-  ui.totalPointsEl.textContent = appState.points;
-  updateProgBar();
   updateUserScore(); // Memanggil update score ke DB
 }
+
+// --- LOGIKA INTI GEMINI API ---
+
+/**
+ * Helper untuk menampilkan/menyembunyikan loading spinner pada tombol
+ * @param {HTMLButtonElement} button - Elemen tombol
+ * @param {boolean} isLoading - Status loading
+ */
+function setButtonLoading(button, isLoading) {
+  if (!button) return;
+  const btnText = button.querySelector('.btn-text');
+  if (isLoading) {
+    button.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    // Hapus spinner lama jika ada
+    const oldSpinner = button.querySelector('.loading-spinner');
+    if (oldSpinner) oldSpinner.remove();
+    // Tambah spinner baru
+    button.insertAdjacentHTML('afterbegin', '<span class="loading-spinner"></span>');
+  } else {
+    button.disabled = false;
+    if (btnText) btnText.style.display = 'inline';
+    const spinner = button.querySelector('.loading-spinner');
+    if (spinner) spinner.remove();
+  }
+}
+
+/**
+ * Fungsi utama untuk memanggil Gemini API dengan exponential backoff
+ * @param {string} userPrompt - Prompt dari pengguna
+ * @param {number} retries - Jumlah percobaan ulang
+ * @param {number} delay - Waktu tunda awal (ms)
+ * @param {string} [systemPrompt] - (Opsional) Instruksi sistem untuk AI
+ * @returns {Promise<string>} Teks respons dari AI
+ */
+async function callGemini(userPrompt, retries = 3, delay = 1000, systemPrompt = null) {
+  if (!GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY belum diisi.");
+    return "Maaf, fitur AI sedang tidak aktif. Kunci API belum dikonfigurasi.";
+  }
+
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
+
+  const payload = {
+    contents: [{ parts: [{ text: userPrompt }] }],
+  };
+
+  if (systemPrompt) {
+    payload.systemInstruction = {
+      parts: [{ text: systemPrompt }]
+    };
+  }
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      if (response.status === 429 && retries > 0) { // Handle rate limiting
+        console.warn(`Rate limit. Mencoba lagi dalam ${delay}ms... (Sisa ${retries} percobaan)`);
+        await new Promise(res => setTimeout(res, delay));
+        return callGemini(userPrompt, retries - 1, delay * 2, systemPrompt); // Exponential backoff
+      }
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.candidates && result.candidates.length > 0 &&
+        result.candidates[0].content && result.candidates[0].content.parts[0]) {
+      return result.candidates[0].content.parts[0].text;
+    } else {
+      console.warn("Respons API tidak valid:", result);
+      return "Maaf, saya tidak dapat memproses permintaan itu saat ini (respons tidak valid).";
+    }
+
+  } catch (error) {
+    console.error("Error memanggil Gemini API:", error);
+    if (retries > 0) {
+      console.warn(`Error. Mencoba lagi dalam ${delay}ms... (Sisa ${retries} percobaan)`);
+      await new Promise(res => setTimeout(res, delay));
+      return callGemini(userPrompt, retries - 1, delay * 2, systemPrompt); // Exponential backoff
+    }
+    return "Maaf, terjadi kesalahan saat menghubungkan ke layanan AI.";
+  }
+}
+
+// --- FUNGSI FITUR GEMINI ---
+
+/**
+ * FITUR #1: Mengambil Fakta Menarik dari Gemini
+ */
+async function fetchFunFact() {
+  setButtonLoading(ui.getFunFactBtn, true);
+  ui.funFactText.textContent = "Sedang mencari fakta menarik...";
+  
+  const prompt = "Berikan satu fakta menarik (fun fact) yang singkat dan mengejutkan tentang sains, teknologi, atau proses belajar. Gunakan bahasa Indonesia.";
+  const fact = await callGemini(prompt);
+  
+  ui.funFactText.textContent = fact;
+  setButtonLoading(ui.getFunFactBtn, false);
+}
+
+/**
+ * FITUR #2: Menjelaskan Jawaban Kuis menggunakan Gemini
+ */
+async function explainQuizAnswer() {
+  const q = appState.lastAnsweredQuestion;
+  if (!q) {
+    showNotification("Tidak ada pertanyaan untuk dijelaskan.", 3000);
+    return;
+  }
+
+  setButtonLoading(ui.explainAnswerBtn, true);
+  const correctAnswerText = q.opts[q.a];
+  
+  const prompt = `
+    Konteks: Saya sedang mengerjakan kuis di platform belajar.
+    Pertanyaan: "${q.q}"
+    Pilihan Jawaban: ${q.opts.join(', ')}
+    Jawaban yang Benar: "${correctAnswerText}"
+    
+    Tugas: Jelaskan mengapa "${correctAnswerText}" adalah jawaban yang benar untuk pertanyaan tersebut. Berikan penjelasan yang singkat, padat (1-2 kalimat), dan mudah dimengerti dalam bahasa Indonesia.
+  `;
+
+  const explanation = await callGemini(prompt);
+  
+  // Tampilkan penjelasan sebagai notifikasi yang tahan lama
+  showNotification(explanation, 10000); // Tampilkan selama 10 detik
+  setButtonLoading(ui.explainAnswerBtn, false);
+}
+
+/**
+ * FITUR #3: Mengirim pesan ke AI Mentor (Gemini)
+ */
+async function sendMentorMessage() {
+    const userPrompt = ui.mentorInput.value.trim();
+    if(!userPrompt) return;
+    
+    postMentorMessage(userPrompt, 'user');
+    ui.mentorInput.value = '';
+    
+    // Tampilkan status "mengetik"
+    const thinkingMsg = document.createElement('div');
+    thinkingMsg.className = 'msg ai';
+    thinkingMsg.innerHTML = '<span class="loading-spinner" style="border-top-color: var(--text-secondary);"></span> Sedang berpikir...';
+    ui.mentorLog.appendChild(thinkingMsg);
+    ui.mentorLog.scrollTop = ui.mentorLog.scrollHeight;
+    
+    const systemPrompt = "Anda adalah 'BARBAR', mentor AI yang ramah, cerdas, dan suportif untuk platform microlearning. Misi Anda adalah membantu siswa memahami konsep yang sulit. Jawab pertanyaan siswa dengan jelas, singkat, dan relevan dengan konteks belajar. Selalu gunakan bahasa Indonesia yang baik.";
+    
+    const response = await callGemini(userPrompt, 3, 1000, systemPrompt);
+
+    // Ganti pesan "sedang berpikir" dengan respons AI
+    thinkingMsg.innerHTML = response;
+    ui.mentorLog.scrollTop = ui.mentorLog.scrollHeight;
+}
+
 
 // --- PAPAN PERINGKAT & AI MENTOR ---
 async function renderLeaderboard() {
@@ -482,7 +608,7 @@ function sendMentorMessage() {
         } else {
             postMentorMessage('Maaf, poin Anda tidak cukup (minimal 20 poin) untuk menggunakan AI Mentor.', 'ai');
         }
-    }
+    // Hapus fungsi sendMentorMessage yang lama
 }
 
 // --- LOGIKA FEEDBACK (NEW) ---
@@ -637,8 +763,13 @@ function setupEventListeners() {
     ui.startSessionBtn.addEventListener('click', startSession);
     ui.endSessionBtn.addEventListener('click', () => endSession(false));
     
-    ui.mentorInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') ui.sendMentorBtn.click(); });
+    // Hapus listener lama dan ganti dengan yang baru
+    ui.mentorInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMentorMessage(); });
     ui.sendMentorBtn.addEventListener('click', sendMentorMessage);
+
+    // Listener baru untuk fitur Gemini
+    ui.getFunFactBtn.addEventListener('click', fetchFunFact);
+    ui.explainAnswerBtn.addEventListener('click', explainQuizAnswer);
 }
 
 // --- Mulai Aplikasi ---
