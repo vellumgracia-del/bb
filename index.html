@@ -74,6 +74,16 @@
         <h3>Visi & Misi Kami</h3>
         <p>Mendemokratisasi pendidikan berkualitas tinggi melalui teknologi, menjadikannya cepat, mudah diakses, dan menyenangkan bagi setiap pelajar di Indonesia.</p>
       </div>
+
+      <!-- FITUR GEMINI #1: FAKTA MENARIK -->
+      <div class="card" id="funFactCard">
+        <div class="card-header">Fakta Menarik Hari Ini</div>
+        <p id="funFactText" class="page-subtitle" style="min-height: 40px; margin-top: 0;">Klik tombol di bawah untuk mendapatkan fakta menarik baru tentang sains atau belajar!</p>
+        <button id="getFunFactBtn" class="btn accent-btn animated-btn" style="margin-top: 16px;">
+          <span class="btn-text">✨ Tampilkan Fakta Menarik</span>
+        </button>
+      </div>
+      
       <div class="founder-section">
         <h3>Tim Pendiri</h3>
         <div class="founder-grid">
@@ -125,6 +135,10 @@
             </div>
             <div id="questionWrap"></div>
             <div class="quiz-controls">
+              <!-- FITUR GEMINI #2: TOMBOL PENJELASAN KUIS -->
+              <button id="explainAnswerBtn" class="btn small-btn" style="display: none; margin-top: 16px;">
+                <span class="btn-text">✨ Jelaskan Jawaban</span>
+              </button>
               <button class="btn" id="endSession" style="display:none">Akhiri Sesi</button>
             </div>
           </div>
@@ -143,19 +157,19 @@
           </div>
         </aside>
       </div>
-    </div>
-    
-    <!-- 5. Halaman AI Mentor Terpisah -->
+    <!-- 5. Halaman AI Mentor Terpisah (FITUR GEMINI #3) -->
     <div id="aiMentorPage" class="page">
         <h2>AI Mentor</h2>
-        <p class="page-subtitle">Punya pertanyaan? Tanyakan pada mentor AI kami. Layanan saat ini **Gratis** karena sedang *maintenance*.</p>
+        <p class="page-subtitle">Punya pertanyaan? Tanyakan pada mentor AI kami. Didukung oleh AI canggih. (Penggunaan demo gratis)</p>
         <div class="mentor-page-container card">
             <div id="mentorLog" class="mentor-log-full">
-              <div class="msg ai">Halo! Saya adalah mentor AI Anda. Tanyakan apa saja terkait pelajaran hari ini. (Saat ini mode maintenance, poin tidak dikurangi).</div>
+              <div class="msg ai">Halo! Saya adalah mentor AI 'BARBAR'. Tanyakan apa saja terkait pelajaran atau topik yang sedang Anda pelajari.</div>
             </div>
             <div class="mentor-input-full">
               <input id="mentorInput" type="text" placeholder="Tanya Mentor..." />
-              <button class="btn accent-btn" id="sendMentor">Kirim</button>
+              <button class="btn accent-btn" id="sendMentor">
+                <span class="btn-text">Kirim</span>
+              </button>
             </div>
         </div>
     </div>
