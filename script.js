@@ -593,22 +593,29 @@ function postMentorMessage(text, who='ai'){
 
 function setupStarRating() {
   // 1. Tambahkan event listener untuk setiap bintang
-  ui.starRatingContainer.querySelectorAll('.star').forEach(star => {
-    star.addEventListener('click', () => {
-      const rating = parseInt(star.dataset.value, 10);
-      appState.currentRating = rating;
-      updateStarVisuals(rating);
-    });
-    // Efek hover
-    star.addEventListener('mouseover', () => {
-      updateStarVisuals(parseInt(star.dataset.value, 10), true);
-    });
-    star.addEventListener('mouseout', () => {
-      updateStarVisuals(appState.currentRating);
-    });
-  });
   
-  ui.submitFeedbackBtn.addEventListener('click', submitFeedback);
+  // PERBAIKAN: Tambahkan null check untuk container bintang
+  if (ui.starRatingContainer) {
+    ui.starRatingContainer.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.value, 10);
+        appState.currentRating = rating;
+        updateStarVisuals(rating);
+      });
+      // Efek hover
+      star.addEventListener('mouseover', () => {
+        updateStarVisuals(parseInt(star.dataset.value, 10), true);
+      });
+      star.addEventListener('mouseout', () => {
+        updateStarVisuals(appState.currentRating);
+      });
+    });
+  }
+  
+  // PERBAIKAN: Tambahkan null check untuk tombol submit
+  if (ui.submitFeedbackBtn) {
+    ui.submitFeedbackBtn.addEventListener('click', submitFeedback);
+  }
 }
 
 function updateStarVisuals(rating, hover = false) {
@@ -755,3 +762,5 @@ function setupEventListeners() {
     }
 }
 
+// --- Mulai Aplikasi ---
+init();
