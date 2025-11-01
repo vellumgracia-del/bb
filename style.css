@@ -67,7 +67,7 @@ body {
 .splash-logo {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 4px;
     animation: splash-fade-in 1s ease-out;
 }
 .splash-logo h1 { font-size: 48px; }
@@ -128,7 +128,7 @@ body::after {
   width: 100%; max-width: 1200px; margin: 0 auto;
   display: flex; justify-content: space-between; align-items: center;
 }
-.header-left, .header-title-group { display: flex; align-items: center; gap: 16px; }
+.header-left, .header-title-group { display: flex; align-items: center; gap: 4px; }
 h1 { font-size: 22px; font-weight: 800; color: var(--text-primary); }
 
 .hamburger-btn {
@@ -322,8 +322,7 @@ h2 { font-size: 28px; font-weight: 700; }
 .question-text { animation: slideInUp 0.4s ease-out; }
 .options { animation: slideInUp 0.4s ease-out 0.1s; animation-fill-mode: backwards; }
 .option.correct { background-color: var(--green) !important; color: white !important; border-color: var(--green) !important; }
-.option.wrong { background-color: var(--red) !important; color: white !impor
-tant; border-color: var(--red) !important; animation: shake 0.5s; }
+.option.wrong { background-color: var(--red) !important; color: white !important; border-color: var(--red) !important; animation: shake 0.5s; }
 @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
 
 /* Halaman AI Mentor */
@@ -375,29 +374,6 @@ tant; border-color: var(--red) !important; animation: shake 0.5s; }
   font-family: inherit; font-size: 14px; text-decoration: none;
   transition: all 0.2s ease;
 }
-/* Style untuk tombol loading */
-.btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-.btn .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--text-primary);
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-.accent-btn .loading-spinner {
-  border-top-color: var(--text-primary);
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .accent-btn { background: var(--accent); color: white; border-color: var(--accent); }
 .accent-btn:hover { background: var(--accent-secondary); border-color: var(--accent-secondary); color: white; }
@@ -412,19 +388,6 @@ tant; border-color: var(--red) !important; animation: shake 0.5s; }
 }
 .animated-btn:active::after { transition: all 0s; opacity: 1; transform: scale(50, 50) translate(-50%, -50%); }
 button:active, .selection-card:active { transform: translateY(1px) scale(0.98); }
-
-/* Tombol kecil untuk 'Jelaskan Jawaban' */
-.btn.small-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    background-color: var(--primary-bg);
-}
-.btn.small-btn:hover {
-    background-color: var(--accent);
-    color: white;
-}
-
 
 input, textarea {
   width: 100%; padding: 12px 16px; border-radius: 8px;
@@ -468,4 +431,3 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); border-color: tr
     .btn { padding: 12px 14px; font-size: 14px; }
     h2 { font-size: 24px; }
 }
-
