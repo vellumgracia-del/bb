@@ -1,0 +1,49 @@
+body {
+  background-color: #BD9A73;
+  color: #2B1F19;
+  font-family: Arial, sans-serif;
+}
+.container {
+  background-color: #C29170;
+  width: 700px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 20px;
+}
+h1, h2, h3 {
+  color: #74503D;
+}
+.menu {
+  background-color: #74503D;
+  color: #BD9A73;
+  padding: 10px;
+  text-decoration: none;
+  border-radius: 10px;
+}
+.menu:hover {
+  background-color: #2B1F19;
+}
+hr {
+  border: 1px solid #74503D;
+}
+.gambar-utama {
+  width: 100%;
+  border-radius: 20px;
+}
+.bawah {
+  display: flex;
+}
+.kotak {
+  background-color: #BD9A73;
+  border: 2px solid #74503D;
+  border-radius: 20px;
+  padding: 15px;
+  width: 50%;
+  margin: 5px;
+}
+.status {
+  background-color: #74503D;
+  color: #BD9A73;
+  padding: 5px;
+  border-radius: 10px;
+}
