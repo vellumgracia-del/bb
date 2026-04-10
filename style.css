@@ -31,8 +31,13 @@ hr {
   border: 1px solid #bfdbfe;
 }
 .gambar-utama {
-  width: 100%;
-  border-radius: 20px;
+  width: 60%;
+  max-width: 480px;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  margin: 0 auto;
 }
 .bawah {
   display: flex;
