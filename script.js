@@ -188,8 +188,30 @@ function safeId(str) {
   return String(str).replace(/[^a-zA-Z0-9]/g, '_');
 }
 
+// ── Hamburger menu (mobile) ──────────────────────────────────────────────────
+function initHamburger() {
+  const btn  = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', () => {
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+  });
+
+  // Close menu when a link is clicked
+  menu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    });
+  });
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  initHamburger();
   initCategoryFilter();
   initMenuLinks();
 
