@@ -1,80 +1,96 @@
 # LibrAspire
 
-LibrAspire is a modern web application designed for library and book management. It has been migrated from a legacy monolithic HTML/JS structure to a decoupled architecture utilizing a Next.js React frontend and a Laravel backend.
+LibrAspire adalah aplikasi web modern yang dirancang untuk manajemen perpustakaan dan koleksi buku. Aplikasi ini telah dimigrasi dari struktur HTML/JS monolitik tradisional menjadi arsitektur modern yang terpisah (*decoupled architecture*) menggunakan *frontend* **Next.js** dan *backend* **Laravel**.
 
-## Project Structure
+## Penjelasan Aplikasi
 
-- **`/frontend`**: The Next.js frontend application.
-  - Built with Next.js 15, React 19, and Tailwind CSS.
-  - Features a modern, responsive, and dynamic user interface.
-  - Integrates with the Open Library API and the Laravel backend.
-- **`/example-app`**: The Laravel backend application.
-  - Built with Laravel PHP framework.
-  - Serves as the API backend for the Next.js application.
+LibrAspire memungkinkan pengguna untuk mencari, melihat, dan mengelola data buku dengan antarmuka yang modern, cepat, dan responsif. Aplikasi ini memanfaatkan integrasi pihak ketiga seperti **Open Library API** untuk mengambil informasi buku secara *real-time*, sekaligus memiliki sistem *backend* sendiri untuk kebutuhan penyimpanan atau manipulasi data kustom (API internal).
 
-## Prerequisites
+### Fitur Utama
+- **Antarmuka Modern (UI/UX)**: Sepenuhnya dirancang ulang menggunakan Tailwind CSS dan komponen React untuk pengalaman interaktif.
+- **Arsitektur Terpisah (*Decoupled*)**: Pemisahan yang jelas antara *frontend* (antarmuka pengguna) dan *backend* (API dan pengelolaan database).
+- **Pencarian Terintegrasi**: Menggunakan Open Library API untuk menghadirkan data ekstensif terkait buku-buku.
 
-- **Node.js**: v18 or later (for the frontend).
-- **PHP**: v8.2 or later (for the backend).
-- **Composer**: PHP dependency manager.
+---
 
-## Setup Instructions
+## Struktur Proyek
 
-### Backend (Laravel)
+Proyek ini dibagi menjadi dua bagian utama:
 
-1. Navigate to the backend directory:
+- **`/frontend`**: Aplikasi *Frontend* Next.js.
+  - Dibangun menggunakan **Next.js 15**, **React 19**, dan **Tailwind CSS**.
+  - Mengelola semua rute halaman, komponen UI, dan interaksi pengguna.
+  - Berkomunikasi dengan Open Library API dan *backend* Laravel.
+- **`/example-app`**: Aplikasi *Backend* Laravel.
+  - Dibangun menggunakan *framework* PHP **Laravel**.
+  - Berfungsi sebagai server API untuk *frontend* Next.js (mengelola database internal, autentikasi, dan logika bisnis lainnya jika diperlukan).
+
+---
+
+## Prasyarat (*Prerequisites*)
+
+Sebelum menjalankan proyek ini, pastikan sistem Anda sudah memiliki instalasi berikut:
+
+- **Node.js**: versi 18 atau yang lebih baru (dibutuhkan untuk *frontend* Next.js).
+- **PHP**: versi 8.2 atau yang lebih baru (dibutuhkan untuk *backend* Laravel).
+- **Composer**: Manajer dependensi untuk PHP.
+
+---
+
+## Panduan Instalasi dan Pengaturan (*Setup Instructions*)
+
+### 1. Menjalankan Backend (Laravel)
+
+1. Buka terminal dan masuk ke direktori *backend*:
    ```bash
    cd example-app
    ```
-2. Install PHP dependencies:
+2. Instal semua dependensi PHP yang dibutuhkan:
    ```bash
    composer install
    ```
-3. Set up your environment variables:
-   Copy `.env.example` to `.env` and configure your database settings.
+3. Atur *Environment Variables*:
+   Salin file `.env.example` menjadi `.env` lalu sesuaikan konfigurasi database Anda di dalamnya.
    ```bash
    cp .env.example .env
    ```
-4. Generate an application key:
+4. Buat (*generate*) kunci aplikasi Laravel:
    ```bash
    php artisan key:generate
    ```
-5. Run the database migrations (if applicable):
+5. Jalankan migrasi database (jika ada struktur tabel yang perlu dibuat):
    ```bash
    php artisan migrate
    ```
-6. Start the local development server:
+6. Jalankan server *development* lokal:
    ```bash
    php artisan serve
    ```
-   The backend will typically be available at `http://127.0.0.1:8000`.
+   *Backend API biasanya akan berjalan di `http://127.0.0.1:8000`.*
 
-### Frontend (Next.js)
+### 2. Menjalankan Frontend (Next.js)
 
-1. Navigate to the frontend directory:
+1. Buka terminal baru dan masuk ke direktori *frontend*:
    ```bash
    cd frontend
    ```
-2. Install Node.js dependencies:
+2. Instal semua dependensi Node.js yang dibutuhkan:
    ```bash
    npm install
    ```
-3. Set up your environment variables:
-   Copy `.env.example` to `.env.local` (ensure it points to your Laravel backend).
+3. Atur *Environment Variables*:
+   Salin file `.env.example` menjadi `.env.local` (pastikan pengaturan di dalamnya mengarah ke *backend* Laravel Anda).
    ```bash
    cp .env.example .env.local
    ```
-4. Start the local development server:
+4. Jalankan server *development* lokal:
    ```bash
    npm run dev
    ```
-   The frontend will be available at `http://localhost:3000`.
+   *Frontend aplikasi akan berjalan dan dapat diakses melalui browser di `http://localhost:3000`.*
 
-## Features
-- **Modern UI**: Completely overhauled using Tailwind CSS and React components.
-- **Decoupled Architecture**: Clear separation of concerns between frontend (Next.js) and backend (Laravel).
-- **Search Capabilities**: Integrated with the Open Library API for fetching book data.
+---
 
-## License
+## Lisensi
 
-This project is open-source and available under the [MIT License](LICENSE).
+Proyek ini bersifat *open-source* dan dilisensikan di bawah [MIT License](LICENSE).
