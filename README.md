@@ -1,6 +1,6 @@
 # LibrAspire
 
-LibrAspire adalah aplikasi web modern yang dirancang untuk manajemen perpustakaan dan koleksi buku. Aplikasi ini telah dimigrasi dari struktur HTML/JS monolitik tradisional menjadi arsitektur modern yang terpisah (*decoupled architecture*) menggunakan *frontend* **Next.js** dan *backend* **Laravel**.
+Salam 41 LibrAspire adalah aplikasi web modern yang dirancang untuk manajemen perpustakaan dan koleksi buku. Aplikasi ini menggunakan *frontend* **Next.js** dan *backend* **Laravel**.
 
 ## Penjelasan Aplikasi
 
